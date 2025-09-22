@@ -25,7 +25,7 @@ const Navbar = () => {
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <img 
-              src="/images/Logoo.jpg"   // ✅ fixed path
+              src="/images/logoo.jpg"   // ✅ fixed path
               alt="Sanchar Logo" 
               className="w-28 h-28 object-contain"
             />

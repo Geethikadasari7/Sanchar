@@ -26,27 +26,27 @@ const Home = () => {
 
   const heroImages = [
   {
-    url: 'images/Tajmahal.jpeg',
+    url: 'images/tajmahal.jpeg',
     alt: 'Taj Mahal in Agra, India â€" iconic white marble monument'
   },
   {
-    url: 'images/Munnnar.jpg',
+    url: 'images/munnnar.jpg',
     alt: 'Munnar, Kerala â€" lush green tea plantations and misty hills'
   },
   {
-    url: 'images/Gangaaarti.jpg',
+    url: 'images/gangaaarti.jpg',
     alt: 'Ganga Aarti in Varanasi â€" priests performing evening ritual with lamps on the ghats'
   },
   {
-    url: 'images/Kodaikanal.jpg',
+    url: 'images/kodaikanal.jpg',
     alt: 'Kodaikanal, Tamil Nadu â€" scenic hill station with lakes and mountains'
   },
   {
-    url: 'images/Bharatanatyam.png',
+    url: 'images/bharatanatyam.png',
     alt: 'Group of dancers performing Bharatanatyam â€" traditional Indian classical dance'
   },
   {
-    url: 'images/Beach.jpg',
+    url: 'images/beach.jpg',
     alt: 'Goa beach â€" golden sands, palm trees, and ocean waves at sunset'
   }
   
@@ -376,7 +376,7 @@ const Home = () => {
           {/*Family-Alert Pic */}
 <div className="bg-orange-50 rounded-2xl shadow-lg h-[500px] mb-6 overflow-hidden relative border-2 border-orange-300">
   <img
-    src="images/FamilyTracking.jpg"
+    src="images/familytracking.jpg"
     alt="Family Tracking"
     className="w-full h-full object-cover"
   />
