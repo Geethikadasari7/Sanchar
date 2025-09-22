@@ -451,16 +451,16 @@ const Home = () => {
           </div>
           <div>© 2025 Sanchar. All Rights Reserved.</div>
           <div className="flex gap-4 md:mr-8">
-            <a href="https://www.instagram.com/sanchar__?igsh=MXFwb2Z5aTdmY2N2bg==" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
+            <a href="https://www.instagram.com/geethikaa_07?igsh=a2FyenF4YTYxOWk5" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
               <Facebook className="w-5 h-5" />
             </a>
-            <a href="https://www.instagram.com/sanchar__?igsh=MXFwb2Z5aTdmY2N2bg==" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
+            <a href="https://www.instagram.com/geethikaa_07?igsh=a2FyenF4YTYxOWk5" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
               <Instagram className="w-5 h-5" />
             </a>
-            <a href="https://www.instagram.com/sanchar__?igsh=MXFwb2Z5aTdmY2N2bg==" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
+            <a href="https://www.instagram.com/geethikaa_07?igsh=a2FyenF4YTYxOWk5" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
               <Twitter className="w-5 h-5" />
             </a>
-            <a href="https://www.instagram.com/sanchar__?igsh=MXFwb2Z5aTdmY2N2bg==" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
+            <a href="https://www.instagram.com/geethikaa_07?igsh=a2FyenF4YTYxOWk5" className="hover:text-orange-200 cursor-pointer p-1 rounded-full hover:bg-orange-700 transition-colors">
               <Linkedin className="w-5 h-5" />
             </a>
           </div>

@@ -4,10 +4,9 @@ import {
   ArrowLeft, MapPin, Calendar, Clock, 
   Users, Shield, Star, Plus, Filter,
   Eye, Navigation, Bookmark, Share2,
-  Music, Camera, Heart, Award
+  Music, Camera, Heart, Award, Moon, Sun
 } from 'lucide-react';
 import toast from 'react-hot-toast';
-
 
 interface Place {
   id: string;
@@ -31,6 +30,7 @@ interface Place {
 }
 
 const PlacesDashboard = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState<'nearby' | 'festivals' | 'famous'>('nearby');
   const [filterCategory, setFilterCategory] = useState('all');
   const [filterDistance, setFilterDistance] = useState('all');
@@ -265,34 +265,47 @@ const PlacesDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link
               to="/dashboard/tourist"
-              className="p-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                isDarkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-white'
+              }`}
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className={`w-5 h-5 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Places & Festivals</h1>
-              <p className="text-gray-600">Discover amazing places and cultural events</p>
+              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Places & Festivals</h1>
+              <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Discover amazing places and cultural events</p>
             </div>
           </div>
-          <MapPin className="w-8 h-8 text-orange-600" />
+          <div className="flex items-center space-x-4">
+            {/* Night Mode Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-all ${
+                isDarkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <MapPin className="w-8 h-8 text-orange-600" />
+          </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+        <div className={`rounded-xl p-4 shadow-sm mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <div className="flex space-x-1">
             <button
               onClick={() => setActiveTab('nearby')}
               className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === 'nearby'
                   ? 'bg-orange-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Nearby Festivals
@@ -302,7 +315,7 @@ const PlacesDashboard = () => {
               className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === 'festivals'
                   ? 'bg-orange-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Famous Festivals
@@ -312,7 +325,7 @@ const PlacesDashboard = () => {
               className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors ${
                 activeTab === 'famous'
                   ? 'bg-orange-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               Recommended Places
@@ -321,13 +334,17 @@ const PlacesDashboard = () => {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+        <div className={`rounded-xl p-6 shadow-sm mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <div className="flex items-center space-x-4">
             <Filter className="w-5 h-5 text-gray-400" />
             <select
               value={filterCategory}
               onChange={(e) => setFilterCategory(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+              className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white' 
+                  : 'border-gray-300'
+              }`}
             >
               <option value="all">All Categories</option>
               <option value="festival">Festivals</option>
@@ -339,7 +356,11 @@ const PlacesDashboard = () => {
             <select
               value={filterDistance}
               onChange={(e) => setFilterDistance(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+              className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white' 
+                  : 'border-gray-300'
+              }`}
             >
               <option value="all">All Distances</option>
               <option value="near">Within 5 km</option>
@@ -349,7 +370,11 @@ const PlacesDashboard = () => {
             <select
               value={filterSafety}
               onChange={(e) => setFilterSafety(e.target.value)}
-              className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+              className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                isDarkMode 
+                  ? 'bg-gray-700 border-gray-600 text-white' 
+                  : 'border-gray-300'
+              }`}
             >
               <option value="all">All Safety Levels</option>
               <option value="high">High Safety (90%+)</option>
@@ -362,7 +387,7 @@ const PlacesDashboard = () => {
         {/* Places Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredPlaces.map(place => (
-            <div key={place.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+            <div key={place.id} className={`rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="relative">
                 <img
                   src={place.image}
@@ -393,37 +418,37 @@ const PlacesDashboard = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center space-x-2">
                     {getTypeIcon(place.type)}
-                    <h3 className="font-semibold text-gray-900 text-lg">{place.name}</h3>
+                    <h3 className={`font-semibold text-lg ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{place.name}</h3>
                   </div>
                 </div>
 
-                <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                <p className={`text-sm mb-4 line-clamp-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {place.description}
                 </p>
 
                 <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
+                  <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                     <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                     <span>{place.location}</span>
                     <span className="ml-auto font-medium">{place.distance}</span>
                   </div>
 
                   {place.date && (
-                    <div className="flex items-center text-sm text-gray-600">
+                    <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                       <span>{new Date(place.date).toLocaleDateString()}</span>
                     </div>
                   )}
 
                   {place.openHours && (
-                    <div className="flex items-center text-sm text-gray-600">
+                    <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <Clock className="w-4 h-4 mr-2 text-gray-400" />
                       <span>{place.openHours}</span>
                     </div>
                   )}
 
                   {place.duration && (
-                    <div className="flex items-center text-sm text-gray-600">
+                    <div className={`flex items-center text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <Clock className="w-4 h-4 mr-2 text-gray-400" />
                       <span>{place.duration}</span>
                     </div>
@@ -433,7 +458,7 @@ const PlacesDashboard = () => {
                     <div className="flex items-center">
                       <Star className="w-4 h-4 text-yellow-500 mr-1" />
                       <span className="text-sm font-medium">{place.rating}</span>
-                      <span className="text-sm text-gray-500 ml-1">({place.reviews})</span>
+                      <span className={`text-sm ml-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>({place.reviews})</span>
                     </div>
                     {place.price && (
                       <span className="text-sm font-medium text-orange-600">{place.price}</span>
@@ -448,7 +473,7 @@ const PlacesDashboard = () => {
                     </span>
                   ))}
                   {place.features.length > 3 && (
-                    <span className="px-2 py-1 bg-gray-100 text-gray-600 text-xs rounded-full">
+                    <span className={`px-2 py-1 text-xs rounded-full ${isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'}`}>
                       +{place.features.length - 3} more
                     </span>
                   )}
@@ -464,14 +489,22 @@ const PlacesDashboard = () => {
                   </button>
                   <button
                     onClick={() => setSelectedPlace(place)}
-                    className="flex-1 border border-gray-300 text-gray-700 py-2 px-3 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium flex items-center justify-center space-x-1"
+                    className={`flex-1 border py-2 px-3 rounded-lg transition-colors text-sm font-medium flex items-center justify-center space-x-1 ${
+                      isDarkMode 
+                        ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <Eye className="w-4 h-4" />
                     <span>View</span>
                   </button>
                   <button
                     onClick={() => viewOnMap(place)}
-                    className="p-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                    className={`p-2 border rounded-lg transition-colors ${
+                      isDarkMode 
+                        ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <Navigation className="w-4 h-4" />
                   </button>
@@ -482,10 +515,10 @@ const PlacesDashboard = () => {
         </div>
 
         {filteredPlaces.length === 0 && (
-          <div className="text-center py-12 bg-white rounded-xl">
+          <div className={`text-center py-12 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
             <MapPin className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No places found</h3>
-            <p className="mt-1 text-sm text-gray-500">
+            <h3 className={`mt-2 text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>No places found</h3>
+            <p className={`mt-1 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
               Try adjusting your filters to see more results.
             </p>
           </div>
@@ -494,7 +527,7 @@ const PlacesDashboard = () => {
         {/* Place Detail Modal */}
         {selectedPlace && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className={`rounded-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="relative">
                 <img
                   src={selectedPlace.image}
@@ -522,8 +555,8 @@ const PlacesDashboard = () => {
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <h2 className="text-2xl font-bold text-gray-900 mb-2">{selectedPlace.name}</h2>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    <h2 className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedPlace.name}</h2>
+                    <div className={`flex items-center space-x-4 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <div className="flex items-center">
                         <MapPin className="w-4 h-4 mr-1" />
                         {selectedPlace.location}
@@ -543,19 +576,19 @@ const PlacesDashboard = () => {
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Description</h3>
-                      <p className="text-gray-600">{selectedPlace.description}</p>
+                      <h3 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Description</h3>
+                      <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{selectedPlace.description}</p>
                     </div>
 
                     {selectedPlace.culturalSignificance && (
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Cultural Significance</h3>
-                        <p className="text-gray-600">{selectedPlace.culturalSignificance}</p>
+                        <h3 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Cultural Significance</h3>
+                        <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{selectedPlace.culturalSignificance}</p>
                       </div>
                     )}
 
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-2">Features</h3>
+                      <h3 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Features</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedPlace.features.map((feature, index) => (
                           <span key={index} className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
@@ -567,30 +600,30 @@ const PlacesDashboard = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="bg-gray-50 p-4 rounded-lg">
-                      <h3 className="font-semibold text-gray-900 mb-3">Quick Info</h3>
+                    <div className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                      <h3 className={`font-semibold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Quick Info</h3>
                       <div className="space-y-2 text-sm">
                         {selectedPlace.openHours && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Hours:</span>
+                            <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Hours:</span>
                             <span className="font-medium">{selectedPlace.openHours}</span>
                           </div>
                         )}
                         {selectedPlace.date && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Date:</span>
+                            <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Date:</span>
                             <span className="font-medium">{new Date(selectedPlace.date).toLocaleDateString()}</span>
                           </div>
                         )}
                         {selectedPlace.duration && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Duration:</span>
+                            <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Duration:</span>
                             <span className="font-medium">{selectedPlace.duration}</span>
                           </div>
                         )}
                         {selectedPlace.price && (
                           <div className="flex justify-between">
-                            <span className="text-gray-600">Price:</span>
+                            <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Price:</span>
                             <span className="font-medium text-orange-600">{selectedPlace.price}</span>
                           </div>
                         )}
@@ -599,8 +632,8 @@ const PlacesDashboard = () => {
 
                     {selectedPlace.safetyTips && (
                       <div>
-                        <h3 className="font-semibold text-gray-900 mb-2">Safety Tips</h3>
-                        <ul className="space-y-1 text-sm text-gray-600">
+                        <h3 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Safety Tips</h3>
+                        <ul className={`space-y-1 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                           {selectedPlace.safetyTips.map((tip, index) => (
                             <li key={index} className="flex items-start">
                               <span className="w-1.5 h-1.5 bg-orange-500 rounded-full mt-2 mr-2 flex-shrink-0"></span>
@@ -623,14 +656,22 @@ const PlacesDashboard = () => {
                   </button>
                   <button
                     onClick={() => viewOnMap(selectedPlace)}
-                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center space-x-2"
+                    className={`border px-6 py-3 rounded-lg transition-colors font-medium flex items-center space-x-2 ${
+                      isDarkMode 
+                        ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <Navigation className="w-4 h-4" />
                     <span>View on Map</span>
                   </button>
                   <button
                     onClick={() => sharePlace(selectedPlace)}
-                    className="border border-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors font-medium flex items-center space-x-2"
+                    className={`border px-6 py-3 rounded-lg transition-colors font-medium flex items-center space-x-2 ${
+                      isDarkMode 
+                        ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                        : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                    }`}
                   >
                     <Share2 className="w-4 h-4" />
                     <span>Share</span>

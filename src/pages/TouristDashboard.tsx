@@ -5,11 +5,11 @@ import {
   MessageCircle, Bell, Moon, Users,
   AlertTriangle, CheckCircle, Clock,
   Thermometer, Eye, Wind, Copy, X,
-  Building, UserRoundSearch
+  Building, UserRoundSearch, FileText
 } from 'lucide-react';
 
 interface TouristDashboardProps {
-  navigate: (screen: 'main' | 'bookings' | 'guide' | 'helplines' | 'language' | 'lost-found' | 'places' | 'safe-route') => void;
+  navigate: (screen: 'main' | 'bookings' | 'guide' | 'helplines' | 'language' | 'lost-found' | 'places' | 'safe-route' | 'family-tracking' | 'e-fir') => void;
 }
 
 const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
@@ -26,6 +26,9 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
   const [showShareModal, setShowShareModal] = useState(false);
   const [showWeatherModal, setShowWeatherModal] = useState(false);
   const [showNotificationsModal, setShowNotificationsModal] = useState(false);
+  const [showSOSModal, setShowSOSModal] = useState(false);
+  const [sosCountdown, setSOSCountdown] = useState(0);
+  const [sosActive, setSOSActive] = useState(false);
   const [shareStatus, setShareStatus] = useState('');
   const [safetyScore, setSafetyScore] = useState(93);
   const [isRecalculating, setIsRecalculating] = useState(false);
@@ -138,6 +141,13 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
     "New Feature: Voice translation now available in Hindi"
   ];
 
+  const emergencyContacts = [
+    { service: 'Emergency Services', number: '112' },
+    { service: 'Police', number: '100' },
+    { service: 'Tourist Helpline', number: '1363' },
+    { service: 'Women Helpline', number: '1091' }
+  ];
+
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
@@ -149,6 +159,107 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
     }, 5000);
     return () => clearInterval(newsTimer);
   }, [newsItems.length]);
+
+  // SOS Countdown effect
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (sosCountdown > 0) {
+      interval = setInterval(() => {
+        setSOSCountdown((prev) => prev - 1);
+      }, 1000);
+    } else if (sosCountdown === 0 && sosActive) {
+      // Trigger SOS
+      triggerSOS();
+    }
+    return () => clearInterval(interval);
+  }, [sosCountdown, sosActive]);
+
+  const handleSOSClick = () => {
+    setShowSOSModal(true);
+  };
+
+  const startSOSCountdown = () => {
+    setSOSCountdown(5);
+    setSOSActive(true);
+    setShowSOSModal(false);
+  };
+
+  const cancelSOS = () => {
+    setSOSCountdown(0);
+    setSOSActive(false);
+    setShowSOSModal(false);
+  };
+
+  const triggerSOS = () => {
+    setSOSActive(false);
+    
+    // Get current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          sendSOSAlert(latitude, longitude);
+        },
+        () => {
+          // Fallback to preset location
+          sendSOSAlert(currentLocation.coordinates.lat, currentLocation.coordinates.lng);
+        }
+      );
+    } else {
+      sendSOSAlert(currentLocation.coordinates.lat, currentLocation.coordinates.lng);
+    }
+  };
+
+  const sendSOSAlert = (lat: number, lng: number) => {
+    // Create emergency message
+    const emergencyMessage = `🚨 EMERGENCY SOS ALERT 🚨\n\nTourist in distress!\n\nName: ${user.name}\nDigital ID: ${user.digitalId}\nLocation: ${currentLocation.name}\nCoordinates: ${lat}, ${lng}\nTime: ${new Date().toLocaleString()}\n\nImmediate assistance required!`;
+    
+    // Multiple SOS actions
+    const actions = [
+      // Call emergency services
+      () => window.open('tel:112'),
+      
+      // Send SMS to emergency services
+      () => {
+        const smsMessage = encodeURIComponent(emergencyMessage);
+        window.open(`sms:112?body=${smsMessage}`);
+      },
+      
+      // Share location via WhatsApp
+      () => {
+        const whatsappMessage = encodeURIComponent(emergencyMessage + `\n\nGoogle Maps: https://maps.google.com/?q=${lat},${lng}`);
+        window.open(`https://wa.me/?text=${whatsappMessage}`);
+      },
+      
+      // Copy emergency info to clipboard
+      () => {
+        navigator.clipboard.writeText(emergencyMessage + `\n\nGoogle Maps: https://maps.google.com/?q=${lat},${lng}`);
+      }
+    ];
+
+    // Execute all actions
+    actions.forEach((action, index) => {
+      setTimeout(() => action(), index * 500);
+    });
+
+    // Add emergency notification
+    const emergencyNotification = {
+      id: Date.now(),
+      type: 'emergency',
+      title: '🚨 SOS ACTIVATED',
+      message: 'Emergency services have been contacted. Help is on the way.',
+      time: 'Just now',
+      read: false,
+      icon: '🚨',
+      priority: 'high' as const
+    };
+
+    setNotifications(prev => [emergencyNotification, ...prev]);
+    
+    // Show success message
+    setShareStatus('🚨 SOS Alert Sent! Emergency services contacted.');
+    setTimeout(() => setShareStatus(''), 10000);
+  };
 
   const handleSafetyScoreClick = () => {
     setIsRecalculating(true);
@@ -278,9 +389,9 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
       color: 'bg-purple-500'
     },
     { 
-      title: 'Share Location',
-      icon: <Share2 className="w-6 h-6" />,
-      onClick: handleShareLocation,
+      title: 'Family Tracking',
+      icon: <Users className="w-6 h-6" />,
+      onClick: () => navigate('family-tracking'),
       color: 'bg-orange-500'
     },
     { 
@@ -300,6 +411,12 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
       icon: <Building className="w-6 h-6" />,
       onClick: () => navigate('bookings'),
       color: 'bg-yellow-500'
+    },
+    { 
+      title: 'E-FIR',
+      icon: <FileText className="w-6 h-6" />,
+      onClick: () => navigate('e-fir'),
+      color: 'bg-teal-500'
     }
   ];
 
@@ -308,13 +425,6 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
     { time: '12:00', activity: 'Lunch at Chandni Chowk', status: 'current' },
     { time: '15:00', activity: 'India Gate sightseeing', status: 'upcoming' },
     { time: '18:00', activity: 'Sunset at Raj Ghat', status: 'upcoming' }
-  ];
-
-  const emergencyContacts = [
-    { service: 'Emergency Services', number: '112' },
-    { service: 'Police', number: '100' },
-    { service: 'Tourist Helpline', number: '1363' },
-    { service: 'Women Helpline', number: '1091' }
   ];
 
   return (
@@ -363,14 +473,39 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
           </div>
         </div>
 
+        {/* SOS Countdown Display */}
+        {sosActive && sosCountdown > 0 && (
+          <div className="fixed inset-0 bg-red-600 bg-opacity-95 flex items-center justify-center z-50">
+            <div className="text-center">
+              <div className="text-white text-8xl font-bold mb-4 animate-pulse">
+                {sosCountdown}
+              </div>
+              <h2 className="text-white text-3xl font-bold mb-4">🚨 EMERGENCY SOS ACTIVATING 🚨</h2>
+              <p className="text-white text-xl mb-8">Calling emergency services in {sosCountdown} seconds</p>
+              <button
+                onClick={cancelSOS}
+                className="bg-white text-red-600 py-4 px-8 rounded-lg text-xl font-bold hover:bg-gray-100 transition-colors"
+              >
+                CANCEL
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Status Message */}
         {shareStatus && (
           <div className={`rounded-xl p-4 mb-4 ${
-            isDarkMode ? 'bg-green-900/20 border border-green-500/30' : 'bg-green-50 border border-green-200'
+            shareStatus.includes('🚨') 
+              ? (isDarkMode ? 'bg-red-900/20 border border-red-500/30' : 'bg-red-50 border border-red-200')
+              : (isDarkMode ? 'bg-green-900/20 border border-green-500/30' : 'bg-green-50 border border-green-200')
           }`}>
             <div className="flex items-center">
-              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-              <span className={`text-sm font-medium ${isDarkMode ? 'text-green-400' : 'text-green-700'}`}>
+              <CheckCircle className={`w-5 h-5 mr-2 ${shareStatus.includes('🚨') ? 'text-red-500' : 'text-green-500'}`} />
+              <span className={`text-sm font-medium ${
+                shareStatus.includes('🚨') 
+                  ? (isDarkMode ? 'text-red-400' : 'text-red-700')
+                  : (isDarkMode ? 'text-green-400' : 'text-green-700')
+              }`}>
                 {shareStatus}
               </span>
             </div>
@@ -500,7 +635,10 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
   </div>
 
   {/* Bigger button */}
-  <button className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 font-bold shadow-md text-base">
+  <button 
+    onClick={handleSOSClick}
+    className="w-full bg-gradient-to-r from-red-600 to-red-700 text-white py-3 px-4 rounded-lg hover:from-red-700 hover:to-red-800 transition-all transform hover:scale-105 active:scale-95 flex items-center justify-center gap-2 font-bold shadow-md text-base"
+  >
     <Phone className="w-5 h-5" />
     <span>SOS Call</span>
   </button>
@@ -652,7 +790,7 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
           <h3 className={`text-xl font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
             Quick Access
           </h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {quickAccessItems.map((item, index) => (
               <div
                 key={index}
@@ -818,6 +956,51 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
           </div>
         </div>
       </div>
+
+      {/* SOS Confirmation Modal */}
+      {showSOSModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className={`rounded-xl p-6 w-full max-w-md ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <div className="text-center">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                <AlertTriangle className="h-6 w-6 text-red-600" />
+              </div>
+              <h3 className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                Emergency SOS Alert
+              </h3>
+              <p className={`text-sm mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                This will immediately contact emergency services and share your location. Are you sure you want to proceed?
+              </p>
+              
+              <div className="space-y-3">
+                <button
+                  onClick={startSOSCountdown}
+                  className="w-full bg-red-600 text-white py-3 px-4 rounded-lg hover:bg-red-700 transition-colors font-semibold"
+                >
+                  🚨 ACTIVATE SOS ALERT
+                </button>
+                
+                <button
+                  onClick={cancelSOS}
+                  className={`w-full py-3 px-4 rounded-lg transition-colors font-semibold ${
+                    isDarkMode 
+                      ? 'bg-gray-700 text-white hover:bg-gray-600' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Cancel
+                </button>
+              </div>
+
+              <div className={`mt-4 p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                  Emergency services will be called, your location will be shared, and your emergency contacts will be notified.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Share Location Modal */}
       {showShareModal && (
@@ -1016,7 +1199,10 @@ const TouristDashboard: React.FC<TouristDashboardProps> = ({ navigate }) => {
                   Quick Actions
                 </h4>
                 <div className="grid grid-cols-2 gap-3">
-                  <button className="flex items-center justify-center space-x-2 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+                  <button 
+                    onClick={handleSOSClick}
+                    className="flex items-center justify-center space-x-2 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+                  >
                     <Phone className="w-4 h-4" />
                     <span className="text-sm">Emergency Call</span>
                   </button>

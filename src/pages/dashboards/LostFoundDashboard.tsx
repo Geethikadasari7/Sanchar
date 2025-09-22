@@ -4,7 +4,8 @@ import {
   ArrowLeft, Search, Plus, MapPin, 
   Calendar, Upload, Eye,
   Clock, User, Phone, AlertTriangle,
-  CheckCircle, Tag, Package, Smartphone
+  CheckCircle, Tag, Package, Smartphone,
+  Moon, Sun
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -26,6 +27,7 @@ interface LostItem {
 }
 
 const LostFoundDashboard = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeTab, setActiveTab] = useState<'search' | 'report'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
@@ -199,34 +201,47 @@ const LostFoundDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link
               to="/dashboard/tourist"
-              className="p-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                isDarkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-white'
+              }`}
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className={`w-5 h-5 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Lost & Found</h1>
-              <p className="text-gray-600">Report lost items or search for found items</p>
+              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Lost & Found</h1>
+              <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Report lost items or search for found items</p>
             </div>
           </div>
-          <Search className="w-8 h-8 text-orange-600" />
+          <div className="flex items-center space-x-4">
+            {/* Night Mode Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-all ${
+                isDarkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <Search className="w-8 h-8 text-orange-600" />
+          </div>
         </div>
 
         {/* Tab Navigation */}
-        <div className="bg-white rounded-xl p-4 shadow-sm mb-6">
+        <div className={`rounded-xl p-4 shadow-sm mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <div className="flex space-x-1">
             <button
               onClick={() => setActiveTab('search')}
               className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
                 activeTab === 'search'
                   ? 'bg-orange-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <Search className="w-4 h-4" />
@@ -237,7 +252,7 @@ const LostFoundDashboard = () => {
               className={`flex-1 py-3 px-4 rounded-lg text-sm font-medium transition-colors flex items-center justify-center space-x-2 ${
                 activeTab === 'report'
                   ? 'bg-orange-600 text-white shadow-sm'
-                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  : isDarkMode ? 'text-gray-300 hover:text-white hover:bg-gray-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
               }`}
             >
               <Plus className="w-4 h-4" />
@@ -249,7 +264,7 @@ const LostFoundDashboard = () => {
         {activeTab === 'search' ? (
           <div className="space-y-6">
             {/* Search & Filters */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className={`rounded-xl p-6 shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="grid md:grid-cols-4 gap-4">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
@@ -258,14 +273,22 @@ const LostFoundDashboard = () => {
                     placeholder="Search items..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                    className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'border-gray-300'
+                    }`}
                   />
                 </div>
 
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'border-gray-300'
+                  }`}
                 >
                   <option value="all">All Categories</option>
                   {categories.map(cat => (
@@ -276,7 +299,11 @@ const LostFoundDashboard = () => {
                 <select
                   value={locationFilter}
                   onChange={(e) => setLocationFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'border-gray-300'
+                  }`}
                 >
                   <option value="all">All Locations</option>
                   <option value="Red Fort">Red Fort</option>
@@ -288,7 +315,11 @@ const LostFoundDashboard = () => {
                 <select
                   value={dateFilter}
                   onChange={(e) => setDateFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                  className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                    isDarkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white' 
+                      : 'border-gray-300'
+                  }`}
                 >
                   <option value="all">All Dates</option>
                   <option value="today">Today</option>
@@ -300,18 +331,18 @@ const LostFoundDashboard = () => {
             {/* Results */}
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className={`text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                   Search Results ({filteredItems.length})
                 </h3>
               </div>
 
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredItems.map(item => (
-                  <div key={item.id} className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={item.id} className={`rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center space-x-2">
                         {getCategoryIcon(item.category)}
-                        <h4 className="font-semibold text-gray-900">{item.title}</h4>
+                        <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{item.title}</h4>
                       </div>
                       <span className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
                         {getStatusIcon(item.status)}
@@ -319,11 +350,11 @@ const LostFoundDashboard = () => {
                       </span>
                     </div>
 
-                    <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                    <p className={`text-sm mb-4 line-clamp-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       {item.description}
                     </p>
 
-                    <div className="space-y-2 text-sm text-gray-600 mb-4">
+                    <div className={`space-y-2 text-sm mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <div className="flex items-center space-x-2">
                         <MapPin className="w-4 h-4 text-gray-400" />
                         <span>{item.location}</span>
@@ -341,10 +372,10 @@ const LostFoundDashboard = () => {
                     {item.matchPercentage && (
                       <div className="mb-4">
                         <div className="flex items-center justify-between text-sm mb-1">
-                          <span className="text-gray-600">Match Confidence</span>
+                          <span className={isDarkMode ? 'text-gray-300' : 'text-gray-600'}>Match Confidence</span>
                           <span className="font-medium text-green-600">{item.matchPercentage}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className={`w-full rounded-full h-2 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                           <div 
                             className="bg-green-600 h-2 rounded-full transition-all duration-500"
                             style={{ width: `${item.matchPercentage}%` }}
@@ -383,10 +414,10 @@ const LostFoundDashboard = () => {
               </div>
 
               {filteredItems.length === 0 && (
-                <div className="text-center py-12 bg-white rounded-xl">
+                <div className={`text-center py-12 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
                   <Search className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No items found</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <h3 className={`mt-2 text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>No items found</h3>
+                  <p className={`mt-1 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     Try adjusting your search criteria or report the item if it's lost.
                   </p>
                 </div>
@@ -395,13 +426,13 @@ const LostFoundDashboard = () => {
           </div>
         ) : (
           /* Report Form */
-          <div className="bg-white rounded-xl p-8 shadow-sm">
-            <h3 className="text-xl font-semibold text-gray-900 mb-6">Report Lost Item</h3>
+          <div className={`rounded-xl p-8 shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+            <h3 className={`text-xl font-semibold mb-6 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Report Lost Item</h3>
             
             <form onSubmit={handleReportSubmit} className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Item Title *
                   </label>
                   <input
@@ -409,20 +440,28 @@ const LostFoundDashboard = () => {
                     required
                     value={reportForm.title}
                     onChange={(e) => setReportForm(prev => ({ ...prev, title: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'border-gray-300'
+                    }`}
                     placeholder="e.g., iPhone 15 Pro Max"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Category *
                   </label>
                   <select
                     required
                     value={reportForm.category}
                     onChange={(e) => setReportForm(prev => ({ ...prev, category: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'border-gray-300'
+                    }`}
                   >
                     <option value="">Select category</option>
                     {categories.map(cat => (
@@ -432,7 +471,7 @@ const LostFoundDashboard = () => {
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Detailed Description *
                   </label>
                   <textarea
@@ -440,13 +479,17 @@ const LostFoundDashboard = () => {
                     value={reportForm.description}
                     onChange={(e) => setReportForm(prev => ({ ...prev, description: e.target.value }))}
                     rows={4}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'border-gray-300'
+                    }`}
                     placeholder="Provide detailed description including color, brand, distinctive features..."
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Last Seen Location *
                   </label>
                   <div className="relative">
@@ -456,7 +499,11 @@ const LostFoundDashboard = () => {
                       required
                       value={reportForm.location}
                       onChange={(e) => setReportForm(prev => ({ ...prev, location: e.target.value }))}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'border-gray-300'
+                      }`}
                       placeholder="e.g., Red Fort main entrance"
                     />
                   </div>
@@ -464,7 +511,7 @@ const LostFoundDashboard = () => {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Date *
                     </label>
                     <input
@@ -472,11 +519,15 @@ const LostFoundDashboard = () => {
                       required
                       value={reportForm.date}
                       onChange={(e) => setReportForm(prev => ({ ...prev, date: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'border-gray-300'
+                      }`}
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                       Time *
                     </label>
                     <input
@@ -484,13 +535,17 @@ const LostFoundDashboard = () => {
                       required
                       value={reportForm.time}
                       onChange={(e) => setReportForm(prev => ({ ...prev, time: e.target.value }))}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                      className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'border-gray-300'
+                      }`}
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Contact Number *
                   </label>
                   <div className="relative">
@@ -500,33 +555,43 @@ const LostFoundDashboard = () => {
                       required
                       value={reportForm.contact}
                       onChange={(e) => setReportForm(prev => ({ ...prev, contact: e.target.value }))}
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                      className={`w-full pl-10 pr-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'border-gray-300'
+                      }`}
                       placeholder="+91 9876543210"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Reward (Optional)
                   </label>
                   <input
                     type="text"
                     value={reportForm.reward}
                     onChange={(e) => setReportForm(prev => ({ ...prev, reward: e.target.value }))}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                    className={`w-full px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                      isDarkMode 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'border-gray-300'
+                    }`}
                     placeholder="e.g., ₹5,000"
                   />
                 </div>
 
                 <div className="md:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Photos (Up to 3)
                   </label>
-                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                  <div className={`border-2 border-dashed rounded-lg p-6 ${
+                    isDarkMode ? 'border-gray-600' : 'border-gray-300'
+                  }`}>
                     <div className="text-center">
                       <Upload className="mx-auto h-8 w-8 text-gray-400" />
-                      <p className="text-sm text-gray-600 mt-2">
+                      <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                         Click to upload or drag and drop photos
                       </p>
                       <input
@@ -539,7 +604,11 @@ const LostFoundDashboard = () => {
                       />
                       <label
                         htmlFor="photo-upload"
-                        className="mt-2 inline-block bg-white text-gray-700 px-3 py-1 rounded border hover:bg-gray-50 cursor-pointer text-sm"
+                        className={`mt-2 inline-block px-3 py-1 rounded border hover:bg-gray-50 cursor-pointer text-sm ${
+                          isDarkMode 
+                            ? 'bg-gray-700 text-gray-300 border-gray-600 hover:bg-gray-600' 
+                            : 'bg-white text-gray-700'
+                        }`}
                       >
                         Choose Photos
                       </label>
@@ -547,7 +616,9 @@ const LostFoundDashboard = () => {
                     {reportForm.images.length > 0 && (
                       <div className="mt-4 grid grid-cols-3 gap-2">
                         {reportForm.images.map((file, index) => (
-                          <div key={index} className="text-xs text-gray-600 bg-gray-100 p-2 rounded">
+                          <div key={index} className={`text-xs p-2 rounded ${
+                            isDarkMode ? 'text-gray-300 bg-gray-700' : 'text-gray-600 bg-gray-100'
+                          }`}>
                             {file.name}
                           </div>
                         ))}
@@ -561,7 +632,11 @@ const LostFoundDashboard = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('search')}
-                  className="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  className={`px-6 py-2 border rounded-lg transition-colors ${
+                    isDarkMode 
+                      ? 'border-gray-600 text-gray-300 hover:bg-gray-700' 
+                      : 'border-gray-300 text-gray-700 hover:bg-gray-50'
+                  }`}
                 >
                   Cancel
                 </button>
@@ -580,42 +655,40 @@ const LostFoundDashboard = () => {
         {/* Item Detail Modal */}
         {selectedItem && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div className={`rounded-2xl p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="flex items-start justify-between mb-6">
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">{selectedItem.title}</h3>
+                  <h3 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{selectedItem.title}</h3>
                   <div className="flex items-center space-x-2 mt-1">
                     {getCategoryIcon(selectedItem.category)}
-                    <span className="text-gray-600 capitalize">{selectedItem.category}</span>
+                    <span className={`capitalize ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{selectedItem.category}</span>
                   </div>
                 </div>
                 <button
                   onClick={() => setSelectedItem(null)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className={`p-2 rounded-lg transition-colors ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                 >
                   ×
                 </button>
               </div>
 
-              
-
               <div className="space-y-4">
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Description</h4>
-                  <p className="text-gray-600">{selectedItem.description}</p>
+                  <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Description</h4>
+                  <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{selectedItem.description}</p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Location</h4>
-                    <p className="text-gray-600 flex items-center">
+                    <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Location</h4>
+                    <p className={`flex items-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <MapPin className="w-4 h-4 mr-2" />
                       {selectedItem.location}
                     </p>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">Date & Time</h4>
-                    <p className="text-gray-600 flex items-center">
+                    <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Date & Time</h4>
+                    <p className={`flex items-center ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                       <Clock className="w-4 h-4 mr-2" />
                       {new Date(selectedItem.date).toLocaleDateString()} at {selectedItem.time}
                     </p>
@@ -623,7 +696,7 @@ const LostFoundDashboard = () => {
                 </div>
 
                 <div>
-                  <h4 className="font-semibold text-gray-900 mb-2">Contact Information</h4>
+                  <h4 className={`font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Contact Information</h4>
                   <button
                     onClick={() => contactReporter(selectedItem.contact)}
                     className="text-blue-600 hover:text-blue-800 flex items-center"

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ArrowLeft, Shield, MapPin, ChevronRight, Plane, UtensilsCrossed, Palmtree, MessageSquare, Brain, Clock, Star, TrendingUp, Globe, Search, Bot, Send, X, Minimize2, Maximize2, User } from 'lucide-react';
+import { ArrowLeft, Shield, MapPin, ChevronRight, Plane, UtensilsCrossed, Palmtree, MessageSquare, Brain, Clock, Star, TrendingUp, Globe, Search, Bot, Send, X, Minimize2, Maximize2, User, Moon, Sun } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -11,10 +11,10 @@ interface Message {
 
 interface GuideDashboardProps {
   onBack: () => void;
-  isDarkMode: boolean;
 }
 
-const GuideDashboard: React.FC<GuideDashboardProps> = ({ onBack, isDarkMode }) => {
+const GuideDashboard: React.FC<GuideDashboardProps> = ({ onBack }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [activeChat, setActiveChat] = useState('');
   const [showChatbot, setShowChatbot] = useState(false);
   const [chatMinimized, setChatMinimized] = useState(false);
@@ -274,6 +274,16 @@ const GuideDashboard: React.FC<GuideDashboardProps> = ({ onBack, isDarkMode }) =
             }`}
           >
             <ArrowLeft className="w-5 h-5" />
+          </button>
+          
+          {/* Night Mode Toggle */}
+          <button
+            onClick={() => setIsDarkMode(!isDarkMode)}
+            className={`p-3 rounded-full transition-all hover:scale-105 ${
+              isDarkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+            }`}
+          >
+            {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
           </button>
           
           {/* Floating decorative elements */}

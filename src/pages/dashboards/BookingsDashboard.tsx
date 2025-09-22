@@ -41,20 +41,61 @@ import {
   Package,
   Headphones,
   BadgeCheck,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  Sun,
+  Moon,
+  ChevronDown,
+  Mountain,
+  Palmtree,
+  Church,
+  Building,
+  Ship,
+  Fish,
+  Crown
 } from 'lucide-react';
 
 interface BookingsDashboardProps {
   onBack: () => void;
-  isDarkMode: boolean;
 }
 
-const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMode }) => {
+// Dynamic image URL configuration - easily replaceable
+const IMAGE_URLS = {
+  // Hotels
+  hotel_oberoi: 'https://i.pinimg.com/1200x/c6/8e/ac/c68eaca77408a1917b674646a9e18844.jpg',
+  hotel_radisson: 'https://i.pinimg.com/736x/9f/f4/4d/9ff44d93b25137366b6748a52db25d7f.jpg',
+  hotel_oberoi_amarvilas: 'https://i.pinimg.com/1200x/d2/55/cd/d255cd019d8606c4f34d9da47c805530.jpg',
+  hotel_club_mahindra: 'https://i.pinimg.com/1200x/96/4b/bd/964bbdcbdd9f992816f8a90c325752f0.jpg',
+  
+  // Restaurants
+  restaurant_karims: 'https://i.pinimg.com/736x/a8/de/d3/a8ded342ac92b01130c954832b0a7a84.jpg',
+  restaurant_indian_accent: 'https://i.pinimg.com/736x/e7/1d/ef/e71defb276c5a9b8e66fad540d15bc79.jpg',
+  
+  // Activities
+  activity_red_fort: 'https://i.pinimg.com/1200x/75/2a/55/752a5576382db942b92317f80de98b87.jpg',
+  activity_cooking_class: 'https://i.pinimg.com/1200x/1f/b4/ef/1fb4ef23792876b4b36a89c7458aadb6.jpg',
+  
+  // Transportation
+  train_rajdhani: 'https://i.pinimg.com/1200x/61/53/33/615333de6c0725c7e8dd070fa29d68d8.jpg',
+  train_shatabdi: 'https://i.pinimg.com/1200x/ce/37/f6/ce37f69f570407f716605c2d3ca51444.jpg',
+  taxi_ola: 'https://i.pinimg.com/1200x/e9/3a/6e/e93a6ead3f6784c21a6620d1102ea88f.jpg',
+  taxi_uber: 'https://i.pinimg.com/736x/eb/85/79/eb857942a973caa234cd6dd1376b1895.jpg',
+  flight_indigo: 'https://i.pinimg.com/736x/e7/10/08/e71008f8fe31dd8d6fd39ea20ddb2904.jpg',
+  flight_air_india: 'https://i.pinimg.com/1200x/59/ee/cf/59eecfaf857c935b87c61a4ad58de553.jpg',
+  
+  // Shopping & Services
+  shopping_fashion: 'https://i.pinimg.com/1200x/c9/e8/8e/c9e88e52ad0ab056e66e5b956bc786f9.jpg',
+  shopping_electronics: 'https://i.pinimg.com/1200x/83/89/d6/8389d652d95f8f607eb68480a16c5fc4.jpg',
+  service_ac_repair: 'https://i.pinimg.com/736x/58/6b/19/586b19f8e7774e90ed4b5193d11c9e4c.jpg',
+  service_home_cleaning: 'https://i.pinimg.com/736x/5a/a0/94/5aa0941120da721047b4ca30f8753944.jpg'
+};
+
+const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack }) => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('Hotels');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState('rating');
-  const [priceRange, setPriceRange] = useState([0, 50000]);
+  const [priceRange, setPriceRange] = useState([0, 10000]);
   const [showFilters, setShowFilters] = useState(false);
   const [favorites, setFavorites] = useState<number[]>([]);
   const [activeTab, setActiveTab] = useState<'explore' | 'bookings' | 'partners'>('explore');
@@ -64,6 +105,133 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
     checkIn: '2024-01-15',
     checkOut: '2024-01-18'
   });
+  const [currentLocation, setCurrentLocation] = useState('New Delhi, India');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
+  const [selectedLocationType, setSelectedLocationType] = useState<string>('All');
+
+  // Major Indian cities and tourist destinations
+  const indianLocations = [
+    // Metro Cities
+    { city: 'New Delhi', state: 'Delhi', country: 'India', popular: true, type: 'Metro' },
+    { city: 'Mumbai', state: 'Maharashtra', country: 'India', popular: true, type: 'Metro' },
+    { city: 'Bangalore', state: 'Karnataka', country: 'India', popular: true, type: 'Metro' },
+    { city: 'Kolkata', state: 'West Bengal', country: 'India', popular: true, type: 'Metro' },
+    { city: 'Chennai', state: 'Tamil Nadu', country: 'India', popular: true, type: 'Metro' },
+    { city: 'Hyderabad', state: 'Telangana', country: 'India', popular: true, type: 'Metro' },
+    { city: 'Pune', state: 'Maharashtra', country: 'India', popular: true, type: 'Metro' },
+    
+    // Tourist Destinations
+    { city: 'Goa', state: 'Goa', country: 'India', popular: true, type: 'Beach' },
+    { city: 'Jaipur', state: 'Rajasthan', country: 'India', popular: true, type: 'Heritage' },
+    { city: 'Udaipur', state: 'Rajasthan', country: 'India', popular: true, type: 'Heritage' },
+    { city: 'Agra', state: 'Uttar Pradesh', country: 'India', popular: true, type: 'Heritage' },
+    { city: 'Varanasi', state: 'Uttar Pradesh', country: 'India', popular: true, type: 'Spiritual' },
+    { city: 'Rishikesh', state: 'Uttarakhand', country: 'India', popular: true, type: 'Spiritual' },
+    { city: 'Manali', state: 'Himachal Pradesh', country: 'India', popular: true, type: 'Hill Station' },
+    { city: 'Shimla', state: 'Himachal Pradesh', country: 'India', popular: true, type: 'Hill Station' },
+    { city: 'Darjeeling', state: 'West Bengal', country: 'India', popular: true, type: 'Hill Station' },
+    { city: 'Ooty', state: 'Tamil Nadu', country: 'India', popular: true, type: 'Hill Station' },
+    { city: 'Munnar', state: 'Kerala', country: 'India', popular: true, type: 'Hill Station' },
+    { city: 'Kochi', state: 'Kerala', country: 'India', popular: true, type: 'Coastal' },
+    { city: 'Alleppey', state: 'Kerala', country: 'India', popular: true, type: 'Backwaters' },
+    { city: 'Mysore', state: 'Karnataka', country: 'India', popular: true, type: 'Heritage' },
+    { city: 'Pushkar', state: 'Rajasthan', country: 'India', popular: true, type: 'Spiritual' },
+    { city: 'Mount Abu', state: 'Rajasthan', country: 'India', popular: true, type: 'Hill Station' },
+    { city: 'Hampi', state: 'Karnataka', country: 'India', popular: true, type: 'Heritage' },
+    { city: 'Amritsar', state: 'Punjab', country: 'India', popular: true, type: 'Spiritual' },
+    { city: 'Haridwar', state: 'Uttarakhand', country: 'India', popular: true, type: 'Spiritual' },
+    { city: 'Varkala', state: 'Kerala', country: 'India', popular: true, type: 'Coastal' },
+    { city: 'Pondicherry', state: 'Puducherry', country: 'India', popular: true, type: 'Coastal' },
+    { city: 'Kumarakom', state: 'Kerala', country: 'India', popular: true, type: 'Backwaters' },
+    { city: 'Kollam', state: 'Kerala', country: 'India', popular: true, type: 'Backwaters' },
+    
+    // Business Cities
+    { city: 'Ahmedabad', state: 'Gujarat', country: 'India', popular: false, type: 'Business' },
+    { city: 'Surat', state: 'Gujarat', country: 'India', popular: false, type: 'Business' },
+    { city: 'Indore', state: 'Madhya Pradesh', country: 'India', popular: false, type: 'Business' },
+    { city: 'Bhopal', state: 'Madhya Pradesh', country: 'India', popular: false, type: 'Business' },
+    { city: 'Lucknow', state: 'Uttar Pradesh', country: 'India', popular: false, type: 'Business' },
+    { city: 'Kanpur', state: 'Uttar Pradesh', country: 'India', popular: false, type: 'Business' },
+    { city: 'Patna', state: 'Bihar', country: 'India', popular: false, type: 'Business' },
+    { city: 'Chandigarh', state: 'Punjab', country: 'India', popular: false, type: 'Business' },
+    { city: 'Coimbatore', state: 'Tamil Nadu', country: 'India', popular: false, type: 'Business' }
+  ];
+
+  // Location type configurations with enhanced styling
+  const locationTypes = [
+    {
+      key: 'All',
+      label: 'All Destinations',
+      icon: Globe,
+      gradient: 'from-indigo-500 to-purple-600',
+      hoverGradient: 'from-indigo-600 to-purple-700',
+      description: 'Explore all locations',
+      count: indianLocations.length
+    },
+    {
+      key: 'Metro',
+      label: 'Metro Cities',
+      icon: Building,
+      gradient: 'from-blue-500 to-cyan-500',
+      hoverGradient: 'from-blue-600 to-cyan-600',
+      description: 'Major metropolitan cities',
+      count: indianLocations.filter(l => l.type === 'Metro').length
+    },
+    {
+      key: 'Heritage',
+      label: 'Heritage Sites',
+      icon: Crown,
+      gradient: 'from-amber-500 to-orange-500',
+      hoverGradient: 'from-amber-600 to-orange-600',
+      description: 'Historical & cultural sites',
+      count: indianLocations.filter(l => l.type === 'Heritage').length
+    },
+    {
+      key: 'Beach',
+      label: 'Beach Destinations',
+      icon: Palmtree,
+      gradient: 'from-teal-400 to-blue-500',
+      hoverGradient: 'from-teal-500 to-blue-600',
+      description: 'Beautiful coastal beaches',
+      count: indianLocations.filter(l => l.type === 'Beach').length
+    },
+    {
+      key: 'Backwaters',
+      label: 'Backwaters',
+      icon: Ship,
+      gradient: 'from-emerald-500 to-teal-500',
+      hoverGradient: 'from-emerald-600 to-teal-600',
+      description: 'Serene backwater experiences',
+      count: indianLocations.filter(l => l.type === 'Backwaters').length
+    },
+    {
+      key: 'Coastal',
+      label: 'Coastal Towns',
+      icon: Fish,
+      gradient: 'from-cyan-400 to-blue-400',
+      hoverGradient: 'from-cyan-500 to-blue-500',
+      description: 'Scenic coastal destinations',
+      count: indianLocations.filter(l => l.type === 'Coastal').length
+    },
+    {
+      key: 'Spiritual',
+      label: 'Spiritual Places',
+      icon: Church,
+      gradient: 'from-rose-400 to-pink-500',
+      hoverGradient: 'from-rose-500 to-pink-600',
+      description: 'Sacred & spiritual destinations',
+      count: indianLocations.filter(l => l.type === 'Spiritual').length
+    },
+    {
+      key: 'Hill Station',
+      label: 'Hill Stations',
+      icon: Mountain,
+      gradient: 'from-green-500 to-emerald-500',
+      hoverGradient: 'from-green-600 to-emerald-600',
+      description: 'Scenic mountain retreats',
+      count: indianLocations.filter(l => l.type === 'Hill Station').length
+    }
+  ];
 
   const filters = ['Hotels', 'Restaurants', 'Activities', 'Taxi', 'Railway', 'Flights', 'Resorts', 'Shopping', 'Services'];
 
@@ -74,7 +242,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
     { label: 'Avg Rating', value: '4.6/5', change: '+0.2', icon: Star, color: 'text-orange-500' }
   ];
 
-  // Sample partner businesses
+  // Sample partner businesses with reasonable pricing
   const partnerBusinesses = [
     {
       id: 1,
@@ -190,7 +358,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
     }
   ];
 
-  // Sample user bookings
+  // Sample user bookings with reasonable prices and dynamic images
   const userBookings = [
     {
       id: 1,
@@ -199,12 +367,12 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       partner: 'OYO Hotels',
       location: 'Kolkata, India',
       date: '2024-01-15 to 2024-01-18',
-      amount: 24500,
+      amount: 4500,
       status: 'confirmed',
       bookingId: 'HTL001234',
       guests: 2,
       rooms: 1,
-      image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+      image: IMAGE_URLS.hotel_oberoi,
       checkIn: '15 Jan 2024',
       checkOut: '18 Jan 2024',
       rating: 4.8,
@@ -223,7 +391,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       bookingId: 'FLT005678',
       passengers: 1,
       flightNo: '6E 331',
-      image: 'https://images.pexels.com/photos/2026324/pexels-photo-2026324.jpeg?auto=compress&cs=tinysrgb&w=400',
+      image: IMAGE_URLS.flight_indigo,
       departure: '14:30',
       arrival: '16:45',
       duration: '2h 15m',
@@ -237,11 +405,11 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       partner: 'Zomato',
       location: 'Jama Masjid, Delhi',
       date: '2024-01-12',
-      amount: 1200,
+      amount: 650,
       status: 'completed',
       bookingId: 'RST009876',
       guests: 3,
-      image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=400',
+      image: IMAGE_URLS.restaurant_karims,
       cuisine: 'Mughlai',
       rating: 4.5,
       tableNo: '15',
@@ -254,11 +422,11 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       partner: 'GetYourGuide',
       location: 'Red Fort, Delhi',
       date: '2024-01-10',
-      amount: 1500,
+      amount: 450,
       status: 'completed',
       bookingId: 'ACT012345',
       participants: 2,
-      image: 'https://images.pexels.com/photos/3574678/pexels-photo-3574678.jpeg?auto=compress&cs=tinysrgb&w=400',
+      image: IMAGE_URLS.activity_red_fort,
       duration: '2 hours',
       guide: 'Rajesh Kumar',
       rating: 4.7
@@ -274,7 +442,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       status: 'pending',
       bookingId: 'TXI067890',
       distance: '25 km',
-      image: 'https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400',
+      image: IMAGE_URLS.taxi_uber,
       pickupTime: '11:30',
       vehicleType: 'Sedan',
       driverName: 'Amit Singh'
@@ -286,17 +454,17 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       partner: 'Amazon',
       location: 'Online Order',
       date: '2024-01-08',
-      amount: 24999,
+      amount: 12999,
       status: 'completed',
       bookingId: 'SHP098765',
       items: 1,
-      image: 'https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=400',
+      image: IMAGE_URLS.shopping_electronics,
       deliveryDate: '10 Jan 2024',
       trackingId: 'AMZ123456789'
     }
   ];
 
-  // Enhanced booking data with more businesses
+  // Enhanced booking data with reasonable prices and dynamic images
   const bookingData = {
     Hotels: [
       {
@@ -306,10 +474,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Kolkata, India',
         rating: 4.8,
         reviewCount: 2847,
-        price: 24500,
-        originalPrice: 28000,
+        price: 4500,
+        originalPrice: 5200,
         discount: 13,
-        image: 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400',
+        image: IMAGE_URLS.hotel_oberoi,
         amenities: ['wifi', 'pool', 'spa', 'restaurant', 'gym', 'valet'],
         features: ['Heritage Property', 'Butler Service', 'City View', 'Fine Dining'],
         rooms: 145,
@@ -330,10 +498,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'New Delhi, India',
         rating: 4.7,
         reviewCount: 1589,
-        price: 18500,
-        originalPrice: 22000,
+        price: 3200,
+        originalPrice: 3800,
         discount: 16,
-        image: 'https://images.pexels.com/photos/164595/pexels-photo-164595.jpeg?auto=compress&cs=tinysrgb&w=400',
+        image: IMAGE_URLS.hotel_radisson,
         amenities: ['wifi', 'restaurant', 'gym', 'parking', 'business', 'pool'],
         features: ['Business Center', 'Conference Halls', 'Airport Shuttle'],
         rooms: 238,
@@ -356,10 +524,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Jama Masjid, Delhi',
         rating: 4.5,
         reviewCount: 12847,
-        price: 1200,
-        originalPrice: 1500,
-        discount: 20,
-        image: 'https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 650,
+        originalPrice: 800,
+        discount: 19,
+        image: IMAGE_URLS.restaurant_karims,
         cuisine: 'Mughlai, Indian',
         specialty: 'Kebabs & Biryani',
         availability: 'Open Now',
@@ -367,7 +535,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         verified: true,
         promoted: true,
         businessBadge: 'Gold Partner',
-        offers: ['20% off on orders above ₹1000', 'Free dessert with main course']
+        offers: ['15% off on orders above ₹500', 'Free dessert with main course']
       },
       {
         id: 4,
@@ -376,10 +544,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Lodhi Road, Delhi',
         rating: 4.9,
         reviewCount: 2567,
-        price: 3500,
-        originalPrice: 3500,
+        price: 1800,
+        originalPrice: 1800,
         discount: 0,
-        image: 'https://images.pexels.com/photos/958545/pexels-photo-958545.jpeg?auto=compress&cs=tinysrgb&w=400',
+        image: IMAGE_URLS.restaurant_indian_accent,
         cuisine: 'Contemporary Indian',
         specialty: 'Fine Dining',
         availability: 'Open Now',
@@ -397,10 +565,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Online Store',
         rating: 4.3,
         reviewCount: 45678,
-        price: 1299,
-        originalPrice: 2499,
-        discount: 48,
-        image: 'https://images.pexels.com/photos/1050244/pexels-photo-1050244.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 899,
+        originalPrice: 1699,
+        discount: 47,
+        image: IMAGE_URLS.shopping_fashion,
         category: 'Fashion & Lifestyle',
         delivery: 'Same Day Delivery',
         availability: 'In Stock',
@@ -416,10 +584,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Online Store',
         rating: 4.2,
         reviewCount: 23456,
-        price: 24999,
-        originalPrice: 29999,
-        discount: 17,
-        image: 'https://images.pexels.com/photos/356056/pexels-photo-356056.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 12999,
+        originalPrice: 15999,
+        discount: 19,
+        image: IMAGE_URLS.shopping_electronics,
         category: 'Electronics & Gadgets',
         delivery: 'Next Day Delivery',
         availability: 'Limited Stock',
@@ -436,10 +604,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Home Service',
         rating: 4.4,
         reviewCount: 1234,
-        price: 799,
-        originalPrice: 999,
-        discount: 20,
-        image: 'https://images.pexels.com/photos/834892/pexels-photo-834892.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 599,
+        originalPrice: 799,
+        discount: 25,
+        image: IMAGE_URLS.service_ac_repair,
         service: 'AC Servicing & Repair',
         duration: '45 minutes',
         availability: 'Available Today',
@@ -455,10 +623,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Home Service',
         rating: 4.6,
         reviewCount: 2345,
-        price: 599,
-        originalPrice: 799,
+        price: 449,
+        originalPrice: 599,
         discount: 25,
-        image: 'https://images.pexels.com/photos/6195125/pexels-photo-6195125.jpeg?auto=compress&cs=tinysrgb&w=400',
+        image: IMAGE_URLS.service_home_cleaning,
         service: 'Deep Cleaning Service',
         duration: '2-3 hours',
         availability: 'Available Today',
@@ -475,10 +643,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Red Fort, Delhi',
         rating: 4.6,
         reviewCount: 1432,
-        price: 799,
-        originalPrice: 999,
-        discount: 20,
-        image: 'https://images.pexels.com/photos/3574678/pexels-photo-3574678.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 450,
+        originalPrice: 550,
+        discount: 18,
+        image: IMAGE_URLS.activity_red_fort,
         duration: '2 hours',
         type: 'Cultural Tour',
         availability: 'Available Today',
@@ -494,10 +662,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Connaught Place, Delhi',
         rating: 4.8,
         reviewCount: 698,
-        price: 2200,
-        originalPrice: 2500,
-        discount: 12,
-        image: 'https://images.pexels.com/photos/4253302/pexels-photo-4253302.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 1200,
+        originalPrice: 1400,
+        discount: 14,
+        image: IMAGE_URLS.activity_cooking_class,
         duration: '3 hours',
         type: 'Culinary Experience',
         availability: 'Available',
@@ -515,10 +683,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         route: 'Delhi - Mumbai',
         rating: 4.4,
         reviewCount: 12340,
-        price: 3200,
-        originalPrice: 3500,
-        discount: 9,
-        image: 'https://images.pexels.com/photos/385998/pexels-photo-385998.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 1800,
+        originalPrice: 2000,
+        discount: 10,
+        image: IMAGE_URLS.train_rajdhani,
         class: 'AC 2 Tier',
         duration: '16 hours',
         departure: '16:05',
@@ -535,10 +703,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         route: 'Delhi - Agra',
         rating: 4.5,
         reviewCount: 1876,
-        price: 800,
-        originalPrice: 900,
-        discount: 11,
-        image: 'https://images.pexels.com/photos/544970/pexels-photo-544970.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 550,
+        originalPrice: 650,
+        discount: 15,
+        image: IMAGE_URLS.train_shatabdi,
         class: 'AC Chair Car',
         duration: '2 hours',
         departure: '06:00',
@@ -557,10 +725,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         type: 'Sedan',
         rating: 4.3,
         reviewCount: 18934,
-        price: 14,
-        originalPrice: 18,
-        discount: 22,
-        image: 'https://images.pexels.com/photos/116675/pexels-photo-116675.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 199,
+        originalPrice: 250,
+        discount: 20,
+        image: IMAGE_URLS.taxi_ola,
         capacity: '4 passengers',
         features: ['AC', 'Music System', 'Clean Interior'],
         availability: '2 mins away',
@@ -576,10 +744,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         type: 'Premium',
         rating: 4.6,
         reviewCount: 15672,
-        price: 22,
-        originalPrice: 25,
-        discount: 12,
-        image: 'https://images.pexels.com/photos/1545743/pexels-photo-1545743.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 210,
+        originalPrice: 270,
+        discount: 18,
+        image: IMAGE_URLS.taxi_uber,
         capacity: '4 passengers',
         features: ['AC', 'Premium Interior', 'Professional Driver'],
         availability: '4 mins away',
@@ -600,7 +768,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         price: 8500,
         originalPrice: 10000,
         discount: 15,
-        image: 'https://images.pexels.com/photos/2026324/pexels-photo-2026324.jpeg?auto=compress&cs=tinysrgb&w=400',
+        image: IMAGE_URLS.flight_indigo,
         flightNo: '6E 331',
         duration: '2h 15m',
         departure: '14:30',
@@ -620,7 +788,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         price: 12000,
         originalPrice: 14000,
         discount: 14,
-        image: 'https://images.pexels.com/photos/358319/pexels-photo-358319.jpeg?auto=compress&cs=tinysrgb&w=400',
+        image: IMAGE_URLS.flight_air_india,
         flightNo: 'AI 505',
         duration: '2h 30m',
         departure: '09:45',
@@ -639,10 +807,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Agra, India',
         rating: 4.9,
         reviewCount: 1867,
-        price: 35000,
-        originalPrice: 42000,
-        discount: 17,
-        image: 'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 8500,
+        originalPrice: 10500,
+        discount: 19,
+        image: IMAGE_URLS.hotel_oberoi_amarvilas,
         amenities: ['pool', 'spa', 'restaurant', 'wifi', 'valet', 'garden'],
         features: ['Taj View', 'Luxury Spa', 'Fine Dining', 'Butler Service'],
         rooms: 102,
@@ -662,10 +830,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         location: 'Goa, India',
         rating: 4.6,
         reviewCount: 923,
-        price: 15000,
-        originalPrice: 18000,
-        discount: 17,
-        image: 'https://images.pexels.com/photos/753626/pexels-photo-753626.jpeg?auto=compress&cs=tinysrgb&w=400',
+        price: 4200,
+        originalPrice: 5200,
+        discount: 19,
+        image: IMAGE_URLS.hotel_club_mahindra,
         amenities: ['pool', 'beach', 'restaurant', 'wifi', 'gym'],
         features: ['Beach Access', 'Water Sports', 'Kids Club'],
         rooms: 75,
@@ -714,12 +882,27 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
 
   const getStatusColor = (status: string) => {
     const colors: { [key: string]: string } = {
-      confirmed: 'text-green-500 bg-green-100 dark:bg-green-900/30',
-      pending: 'text-yellow-500 bg-yellow-100 dark:bg-yellow-900/30',
-      completed: 'text-blue-500 bg-blue-100 dark:bg-blue-900/30',
-      cancelled: 'text-red-500 bg-red-100 dark:bg-red-900/30'
+      confirmed: 'text-white bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800',
+      pending: 'text-white bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700',
+      completed: 'text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-700 dark:hover:bg-blue-800',
+      cancelled: 'text-white bg-red-600 hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-800'
     };
-    return colors[status] || 'text-gray-500 bg-gray-100 dark:bg-gray-900/30';
+    return colors[status] || 'text-gray-500 bg-gray-100 dark:bg-gray-900/30 dark:text-gray-400';
+  };
+
+  const getLocationTypeColor = (type: string) => {
+    const colors: { [key: string]: string } = {
+      'Metro': 'bg-blue-500 text-white shadow-lg',
+      'Heritage': 'bg-purple-500 text-white shadow-lg',
+      'Beach': 'bg-cyan-500 text-white shadow-lg',
+      'Hill Station': 'bg-green-500 text-white shadow-lg',
+      'Spiritual': 'bg-orange-500 text-white shadow-lg',
+      'Business': 'bg-gray-500 text-white shadow-lg',
+      'Coastal': 'bg-teal-500 text-white shadow-lg',
+      'Backwaters': 'bg-emerald-500 text-white shadow-lg',
+      'Wildlife': 'bg-yellow-500 text-white shadow-lg'
+    };
+    return colors[type] || 'bg-gray-500 text-white shadow-lg';
   };
 
   const toggleFavorite = (itemId: number) => {
@@ -730,18 +913,35 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
     );
   };
 
+  const handleLocationSelect = (location: any) => {
+    setCurrentLocation(`${location.city}, ${location.state}`);
+    setShowLocationDropdown(false);
+  };
+
+  const handleLocationTypeFilter = (type: string) => {
+    setSelectedLocationType(type);
+  };
+
   const currentData = bookingData[activeFilter as keyof typeof bookingData] || [];
 
   const filteredBookings = bookingStatusFilter === 'All' 
     ? userBookings 
     : userBookings.filter(booking => booking.status === bookingStatusFilter.toLowerCase());
 
+  // Filter locations by selected type
+  const filteredLocations = selectedLocationType === 'All' 
+    ? indianLocations 
+    : indianLocations.filter(location => location.type === selectedLocationType);
+
+  // Group locations by type for better organization
+  const popularLocations = indianLocations.filter(loc => loc.popular);
+
   const renderPartnerCard = (partner: any) => {
     return (
       <div
         key={partner.id}
         className={`p-6 rounded-2xl shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl ${
-          isDarkMode ? 'bg-gray-800' : 'bg-white'
+          isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
         }`}
       >
         <div className="flex items-start justify-between mb-4">
@@ -759,13 +959,13 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
           
           <div className="flex flex-col items-end space-y-2">
             {partner.verified && (
-              <span className="bg-green-500 text-white px-2 py-1 rounded-full text-xs flex items-center">
+              <span className="bg-green-500 text-white px-3 py-2 rounded-full text-xs flex items-center font-medium shadow-lg">
                 <BadgeCheck className="w-3 h-3 mr-1" />
                 Trusted
               </span>
             )}
             {partner.featured && (
-              <span className="bg-orange-500 text-white px-2 py-1 rounded-full text-xs">
+              <span className="bg-orange-500 text-white px-3 py-2 rounded-full text-xs font-medium shadow-lg">
                 Featured
               </span>
             )}
@@ -812,21 +1012,21 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         </div>
 
         <div className="flex items-center justify-between">
-          <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+          <span className={`px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 ${
             partner.status === 'active' 
-              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-              : 'bg-gray-100 text-gray-700 dark:bg-gray-900/30 dark:text-gray-400'
+              ? 'bg-green-500 text-white shadow-lg hover:bg-green-600'
+              : 'bg-gray-500 text-white shadow-lg'
           }`}>
-            {partner.status === 'active' ? 'Available' : 'Unavailable'}
+            {partner.status === 'active' ? 'Available Now' : 'Unavailable'}
           </span>
           
           <div className="flex space-x-2">
-            <button className={`p-2 rounded-lg transition-colors ${
-              isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
+            <button className={`p-3 rounded-xl transition-all hover:scale-105 shadow-md ${
+              isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
             }`}>
               <Eye className="w-4 h-4" />
             </button>
-            <button className="px-4 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-colors">
+            <button className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all hover:scale-105 shadow-lg">
               Explore Services
             </button>
           </div>
@@ -840,7 +1040,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       <div
         key={booking.id}
         className={`p-6 rounded-2xl shadow-lg transition-all duration-300 hover:shadow-xl cursor-pointer ${
-          isDarkMode ? 'bg-gray-800' : 'bg-white'
+          isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
         }`}
         onClick={() => setSelectedBooking(booking)}
       >
@@ -849,6 +1049,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             src={booking.image}
             alt={booking.name}
             className="w-20 h-20 rounded-xl object-cover"
+            onError={(e) => {
+              // Fallback image if URL fails
+              e.currentTarget.src = 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400';
+            }}
           />
           
           <div className="flex-1">
@@ -863,7 +1067,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
               </div>
               
               <div className="text-right">
-                <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(booking.status)}`}>
+                <span className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>
                   {booking.status.charAt(0).toUpperCase() + booking.status.slice(1)}
                 </span>
               </div>
@@ -871,14 +1075,14 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             
             <div className="flex items-center space-x-4 mb-3">
               <div className="flex items-center">
-                <MapPin className="w-4 h-4 text-gray-400 mr-1" />
+                <MapPin className={`w-4 h-4 mr-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {booking.location}
                 </span>
               </div>
               
               <div className="flex items-center">
-                <Calendar className="w-4 h-4 text-gray-400 mr-1" />
+                <Calendar className={`w-4 h-4 mr-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {booking.date}
                 </span>
@@ -918,7 +1122,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
       <div
         key={item.id}
         className={`rounded-2xl overflow-hidden shadow-lg transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl ${
-          isDarkMode ? 'bg-gray-800' : 'bg-white'
+          isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
         }`}
       >
         <div className="relative">
@@ -926,29 +1130,33 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             src={item.image}
             alt={item.name}
             className="w-full h-56 object-cover"
+            onError={(e) => {
+              // Fallback image if URL fails
+              e.currentTarget.src = 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400';
+            }}
           />
           
           {/* Overlay badges */}
           <div className="absolute top-4 left-4 flex flex-col space-y-2">
             {item.businessBadge && (
-              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                <Award className="w-3 h-3 mr-1" />
+              <span className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center shadow-lg">
+                <Award className="w-4 h-4 mr-2" />
                 {item.businessBadge}
               </span>
             )}
             {item.promoted && (
-              <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+              <span className="bg-orange-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg">
                 Promoted
               </span>
             )}
             {item.verified && (
-              <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-                <CheckCircle className="w-3 h-3 mr-1" />
+              <span className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center shadow-lg">
+                <CheckCircle className="w-4 h-4 mr-2" />
                 Verified
               </span>
             )}
             {item.discount > 0 && (
-              <span className="bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+              <span className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg">
                 {item.discount}% OFF
               </span>
             )}
@@ -958,23 +1166,23 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
           <div className="absolute top-4 right-4 flex flex-col space-y-2">
             <button
               onClick={() => toggleFavorite(item.id)}
-              className={`p-2 rounded-full transition-all hover:scale-110 ${
+              className={`p-3 rounded-full transition-all hover:scale-110 shadow-lg ${
                 favorites.includes(item.id)
                   ? 'bg-red-500 text-white'
-                  : 'bg-white/80 text-gray-600 hover:bg-white'
+                  : 'bg-white/90 text-gray-700 hover:bg-white'
               }`}
             >
-              <Heart className={`w-4 h-4 ${favorites.includes(item.id) ? 'fill-current' : ''}`} />
+              <Heart className={`w-5 h-5 ${favorites.includes(item.id) ? 'fill-current' : ''}`} />
             </button>
-            <button className="p-2 rounded-full bg-white/80 text-gray-600 hover:bg-white transition-all hover:scale-110">
-              <Share2 className="w-4 h-4" />
+            <button className="p-3 rounded-full bg-white/90 text-gray-700 hover:bg-white transition-all hover:scale-110 shadow-lg">
+              <Share2 className="w-5 h-5" />
             </button>
           </div>
           
           {/* Availability indicator */}
           <div className="absolute bottom-4 left-4">
-            <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-medium flex items-center">
-              <CheckCircle className="w-3 h-3 mr-1" />
+            <span className="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center shadow-lg">
+              <CheckCircle className="w-4 h-4 mr-2" />
               {item.availability}
             </span>
           </div>
@@ -992,14 +1200,14 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 </p>
               )}
               <div className="flex items-center mb-2">
-                <MapPin className="w-4 h-4 text-gray-400 mr-1" />
+                <MapPin className={`w-4 h-4 mr-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                   {item.location || item.route}
                 </p>
               </div>
               {item.distance && (
                 <div className="flex items-center mb-2">
-                  <Navigation className="w-4 h-4 text-gray-400 mr-1" />
+                  <Navigation className={`w-4 h-4 mr-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                   <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                     {item.distance}
                   </p>
@@ -1024,19 +1232,19 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
           {(activeFilter === 'Hotels' || activeFilter === 'Resorts') && item.rooms && (
             <div className="flex items-center space-x-4 mb-4">
               <div className="flex items-center">
-                <Bed className="w-4 h-4 text-gray-400 mr-1" />
+                <Bed className={`w-4 h-4 mr-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {item.rooms} rooms
                 </span>
               </div>
               <div className="flex items-center">
-                <Bath className="w-4 h-4 text-gray-400 mr-1" />
+                <Bath className={`w-4 h-4 mr-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {item.bathrooms} baths
                 </span>
               </div>
               <div className="flex items-center">
-                <Home className="w-4 h-4 text-gray-400 mr-1" />
+                <Home className={`w-4 h-4 mr-1 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
                 <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                   {item.area}
                 </span>
@@ -1127,7 +1335,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 {item.offers.map((offer: string, index: number) => (
                   <span
                     key={index}
-                    className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 rounded text-xs flex items-center"
+                    className="px-3 py-2 bg-green-500 text-white rounded-lg text-sm flex items-center font-medium shadow-lg transition-all hover:scale-105"
                   >
                     <Gift className="w-3 h-3 mr-1" />
                     {offer}
@@ -1144,8 +1352,8 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 {item.amenities.slice(0, 5).map((amenity: string, index: number) => (
                   <div
                     key={index}
-                    className={`flex items-center space-x-1 px-3 py-1 rounded-full text-xs ${
-                      isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
+                    className={`flex items-center space-x-1 px-3 py-2 rounded-full text-sm transition-all hover:scale-105 ${
+                      isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     {getAmenityIcon(amenity)}
@@ -1153,7 +1361,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                   </div>
                 ))}
                 {item.amenities.length > 5 && (
-                  <span className={`px-3 py-1 rounded-full text-xs ${
+                  <span className={`px-3 py-2 rounded-full text-sm ${
                     isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-600'
                   }`}>
                     +{item.amenities.length - 5} more
@@ -1170,7 +1378,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 {item.features.slice(0, 3).map((feature: string, index: number) => (
                   <span
                     key={index}
-                    className={`px-2 py-1 rounded text-xs ${
+                    className={`px-3 py-2 rounded-lg text-sm transition-all hover:scale-105 ${
                       isDarkMode ? 'bg-blue-900/30 text-blue-400' : 'bg-blue-100 text-blue-700'
                     }`}
                   >
@@ -1195,7 +1403,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 </span>
               </div>
               <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                {activeFilter === 'Taxi' ? 'per km' : 
+                {activeFilter === 'Taxi' ? 'per hour' : 
                  activeFilter === 'Activities' ? 'per person' : 
                  activeFilter === 'Shopping' ? 'per item' :
                  activeFilter === 'Services' ? 'per service' : 'per night'}
@@ -1203,12 +1411,12 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             </div>
             
             <div className="flex space-x-2">
-              <button className={`p-2 rounded-lg transition-all hover:scale-105 ${
-                isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              <button className={`p-3 rounded-xl transition-all hover:scale-105 shadow-md ${
+                isDarkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}>
-                <Eye className="w-4 h-4" />
+                <Eye className="w-5 h-5" />
               </button>
-              <button className="px-6 py-2 bg-orange-500 text-white rounded-lg font-medium hover:bg-orange-600 transition-all hover:scale-105">
+              <button className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-xl font-medium hover:from-orange-600 hover:to-red-600 transition-all hover:scale-105 shadow-lg">
                 {activeFilter === 'Shopping' ? 'Add to Cart' :
                  activeFilter === 'Services' ? 'Book Service' : 'Book Now'}
               </button>
@@ -1220,7 +1428,11 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50'}`}>
+    <div className={`min-h-screen transition-colors duration-300 ${
+      isDarkMode 
+        ? 'bg-gray-900' 
+        : 'bg-gradient-to-br from-orange-50 via-pink-50 to-yellow-50'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -1228,7 +1440,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             <button
               onClick={onBack}
               className={`p-3 rounded-full mr-4 transition-all hover:scale-105 ${
-                isDarkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+                isDarkMode 
+                  ? 'bg-gray-800 text-white hover:bg-gray-700' 
+                  : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
               }`}
             >
               <ArrowLeft className="w-5 h-5" />
@@ -1243,15 +1457,30 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             </div>
           </div>
           
+          {/* Header Actions */}
           <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-2 rounded-lg transition-all hover:scale-105 ${
+                isDarkMode 
+                  ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
+                  : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+              }`}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             <button className={`p-2 rounded-lg transition-colors relative ${
-              isDarkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+              isDarkMode 
+                ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
             }`}>
               <Bell className="w-5 h-5" />
               <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
             </button>
             <button className={`p-2 rounded-lg transition-colors ${
-              isDarkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+              isDarkMode 
+                ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
             }`}>
               <Download className="w-5 h-5" />
             </button>
@@ -1259,7 +1488,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         </div>
 
         {/* Navigation Tabs */}
-        <div className={`flex space-x-1 p-1 rounded-xl mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
+        <div className={`flex space-x-1 p-1 rounded-xl mb-6 ${
+          isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'
+        }`}>
           {[
             { key: 'explore', label: 'Explore Services', icon: Globe },
             { key: 'bookings', label: 'My Bookings', icon: Calendar },
@@ -1286,7 +1517,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {stats.map((stat, index) => (
             <div key={index} className={`p-4 rounded-xl transition-all hover:scale-105 ${
-              isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'
+              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md border border-gray-200'
             }`}>
               <div className="flex items-center justify-between mb-2">
                 <stat.icon className={`w-5 h-5 ${stat.color}`} />
@@ -1308,19 +1539,202 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         {/* Content based on active tab */}
         {activeTab === 'explore' && (
           <>
-            {/* Location & Date Selection */}
-            <div className={`p-6 rounded-xl mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
-              <div className="grid md:grid-cols-3 gap-4">
-                <div className="flex items-center">
-                  <MapPin className="w-5 h-5 text-orange-500 mr-3" />
-                  <div>
-                    <span className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
-                      New Delhi, India
-                    </span>
-                    <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                      Current location
-                    </p>
+            {/* Enhanced Location Type Filter Buttons */}
+            <div className={`p-6 rounded-xl mb-6 ${
+              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md border border-gray-200'
+            }`}>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Explore by Destination Type
+                </h3>
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                  Choose your travel preference
+                </span>
+              </div>
+
+               {/* Beautiful Location Type Buttons */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+                {locationTypes.map((locationType) => (
+                  <button
+                    key={locationType.key}
+                    onClick={() => handleLocationTypeFilter(locationType.key)}
+                    className={`group relative overflow-hidden rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-xl ${
+                      selectedLocationType === locationType.key
+                        ? 'shadow-2xl scale-105'
+                        : 'shadow-lg hover:shadow-2xl'
+                    }`}
+                  >
+
+                    {/* Gradient Background */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${
+                      selectedLocationType === locationType.key 
+                        ? locationType.hoverGradient 
+                        : locationType.gradient
+                    } transition-all duration-300`} />
+                    
+                    {/* Button Content */}
+                    <div className="relative h-full p-2 text-white flex flex-col items-center justify-center">
+                      <locationType.icon className="w-5 h-5 group-hover:scale-110 transition-transform duration-200 mb-1" />
+                      <div className="text-center">
+                        <div className="font-bold text-xs leading-tight mb-1">
+                          {locationType.label}
+                        </div>
+                        <div className="text-xs opacity-90">
+                          {locationType.count}
+                        </div>
+                      </div>
+
+                      {/* Hover Overlay Effect */}
+                      <div className="absolute inset-0 bg-white/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      
+                      {/* Active Indicator */}
+                      {selectedLocationType === locationType.key && (
+                        <div className="absolute top-1 right-1">
+                          <CheckCircle className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Shine Effect */}
+                    <div className="absolute top-0 -left-4 w-4 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent transform -skew-x-12 transition-all duration-700 group-hover:left-full" />
+                  </button>
+                ))}
+              </div>
+
+              {/* Selected Type Description */}
+              {selectedLocationType !== 'All' && (
+                <div className={`mt-4 p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-orange-50'}`}>
+                  <div className="flex items-center space-x-3">
+                    {(() => {
+                      const selected = locationTypes.find(t => t.key === selectedLocationType);
+                      return selected ? (
+                        <>
+                          <selected.icon className="w-6 h-6 text-orange-500" />
+                          <div>
+                            <h4 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {selected.label}
+                            </h4>
+                            <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                              {selected.description} • {selected.count} destinations available
+                            </p>
+                          </div>
+                        </>
+                      ) : null;
+                    })()}
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Location & Date Selection with Enhanced Location Selector */}
+            <div className={`p-6 rounded-xl mb-6 ${
+              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md border border-gray-200'
+            }`}>
+              <div className="grid md:grid-cols-3 gap-4">
+                {/* Enhanced Location Selector */}
+                <div className="relative">
+                  <div className="flex items-center">
+                    <MapPin className="w-5 h-5 text-orange-500 mr-3" />
+                    <div className="flex-1">
+                      <button
+                        onClick={() => setShowLocationDropdown(!showLocationDropdown)}
+                        className={`w-full text-left flex items-center justify-between p-3 rounded-xl border-2 transition-all hover:scale-[1.02] ${
+                          isDarkMode 
+                            ? 'bg-gray-700 border-gray-600 text-white hover:border-orange-500' 
+                            : 'bg-gray-50 border-gray-200 text-gray-900 hover:border-orange-500 hover:bg-white'
+                        }`}
+                      >
+                        <div>
+                          <span className="font-medium">{currentLocation}</span>
+                          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            Current location
+                          </p>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 transform transition-transform ${
+                          showLocationDropdown ? 'rotate-180' : ''
+                        }`} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Enhanced Location Dropdown */}
+                  {showLocationDropdown && (
+                    <div className={`absolute top-full left-0 right-0 mt-2 rounded-xl shadow-2xl z-50 max-h-96 overflow-y-auto ${
+                      isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
+                    }`}>
+                      <div className="p-4">
+                        {/* Popular Tourist Destinations */}
+                        <h3 className={`text-sm font-bold mb-3 flex items-center ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                          <Star className="w-4 h-4 text-yellow-500 mr-2" />
+                          Popular Tourist Destinations
+                        </h3>
+                        <div className="space-y-2">
+                          {popularLocations.filter(location => 
+                            selectedLocationType === 'All' || location.type === selectedLocationType
+                          ).map((location, index) => (
+                            <button
+                              key={index}
+                              onClick={() => handleLocationSelect(location)}
+                              className={`w-full text-left p-3 rounded-xl transition-all hover:scale-[1.02] shadow-md hover:shadow-lg ${
+                                isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-50 hover:bg-white text-gray-900'
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center space-x-3">
+                                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold shadow-lg ${getLocationTypeColor(location.type)}`}>
+                                    {(() => {
+                                      const typeConfig = locationTypes.find(t => t.key === location.type);
+                                      return typeConfig ? <typeConfig.icon className="w-6 h-6" /> : <MapPin className="w-6 h-6" />;
+                                    })()}
+                                  </div>
+                                  <div>
+                                    <div className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                                      {location.city}, {location.state}
+                                    </div>
+                                    <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                      {location.country}
+                                    </div>
+                                  </div>
+                                </div>
+                                <span className={`px-3 py-2 rounded-full text-sm font-medium text-white shadow-lg ${getLocationTypeColor(location.type)}`}>
+                                  {location.type}
+                                </span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* All Cities filtered by type */}
+                        {selectedLocationType !== 'All' && (
+                          <div className="mt-6">
+                            <h3 className={`text-sm font-bold mb-3 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                              All {selectedLocationType} Destinations
+                            </h3>
+                            <div className="grid grid-cols-1 gap-2 max-h-48 overflow-y-auto">
+                              {filteredLocations.filter(loc => !loc.popular).map((location, index) => (
+                                <button
+                                  key={index}
+                                  onClick={() => handleLocationSelect(location)}
+                                  className={`text-left p-3 rounded-xl transition-all hover:scale-[1.02] shadow-sm hover:shadow-md ${
+                                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-50 hover:bg-white text-gray-900'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm font-medium">
+                                      {location.city}, {location.state}
+                                    </span>
+                                    <span className={`px-3 py-1 rounded-full text-xs font-medium text-white shadow-sm ${getLocationTypeColor(location.type)}`}>
+                                      {location.type}
+                                    </span>
+                                  </div>
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 <div className="flex items-center">
@@ -1330,7 +1744,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                       type="date"
                       value={selectedDates.checkIn}
                       onChange={(e) => setSelectedDates({...selectedDates, checkIn: e.target.value})}
-                      className={`font-medium bg-transparent border-none outline-none ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`font-medium bg-transparent border-none outline-none ${
+                        isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}
                     />
                     <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       Check-in
@@ -1345,7 +1761,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                       type="date"
                       value={selectedDates.checkOut}
                       onChange={(e) => setSelectedDates({...selectedDates, checkOut: e.target.value})}
-                      className={`font-medium bg-transparent border-none outline-none ${isDarkMode ? 'text-white' : 'text-gray-900'}`}
+                      className={`font-medium bg-transparent border-none outline-none ${
+                        isDarkMode ? 'text-white' : 'text-gray-900'
+                      }`}
                     />
                     <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
                       Check-out
@@ -1356,10 +1774,14 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             </div>
 
             {/* Search and Filters */}
-            <div className={`p-6 rounded-xl mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
+            <div className={`p-6 rounded-xl mb-6 ${
+              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md border border-gray-200'
+            }`}>
               {/* Search Bar */}
               <div className="relative mb-4">
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 ${
+                  isDarkMode ? 'text-gray-500' : 'text-gray-400'
+                }`} />
                 <input
                   type="text"
                   placeholder="Search across all partner services..."
@@ -1382,12 +1804,12 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                   <button
                     key={filter}
                     onClick={() => setActiveFilter(filter)}
-                    className={`flex items-center space-x-2 px-4 py-2 rounded-full text-sm font-medium transition-all hover:scale-105 ${
+                    className={`flex items-center space-x-2 px-6 py-3 rounded-full text-sm font-medium transition-all hover:scale-105 shadow-lg ${
                       activeFilter === filter
-                        ? 'bg-orange-500 text-white shadow-lg'
+                        ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-xl'
                         : isDarkMode
-                        ? 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gray-700 text-white hover:bg-gray-600'
+                        : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
                     }`}
                   >
                     {getFilterIcon(filter)}
@@ -1397,26 +1819,32 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 
                 <button 
                   onClick={() => setShowFilters(!showFilters)}
-                  className={`p-2 rounded-full transition-all hover:scale-105 ${
-                    isDarkMode ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  className={`p-3 rounded-full transition-all hover:scale-105 shadow-lg ${
+                    isDarkMode ? 'bg-gray-700 text-white hover:bg-gray-600' : 'bg-white text-gray-700 hover:bg-gray-50 border-2 border-gray-200'
                   }`}
                 >
-                  <SlidersHorizontal className="w-4 h-4" />
+                  <SlidersHorizontal className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Advanced Filters */}
               {showFilters && (
-                <div className="grid md:grid-cols-4 gap-4 p-4 border-t border-gray-200 dark:border-gray-600">
+                <div className={`grid md:grid-cols-4 gap-4 p-4 border-t ${
+                  isDarkMode ? 'border-gray-600' : 'border-gray-200'
+                }`}>
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <label className={`block text-sm font-medium mb-2 ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
                       Sort by
                     </label>
                     <select 
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
                       className={`w-full p-2 rounded-lg border ${
-                        isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     >
                       <option value="rating">Rating</option>
@@ -1428,14 +1856,16 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                   </div>
                   
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <label className={`block text-sm font-medium mb-2 ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
                       Price Range
                     </label>
                     <div className="flex items-center space-x-2">
                       <input
                         type="range"
                         min="0"
-                        max="50000"
+                        max="10000"
                         value={priceRange[1]}
                         onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value)])}
                         className="flex-1"
@@ -1447,14 +1877,20 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                   </div>
                   
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <label className={`block text-sm font-medium mb-2 ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
                       View Mode
                     </label>
                     <div className="flex space-x-2">
                       <button
                         onClick={() => setViewMode('grid')}
                         className={`px-3 py-2 rounded-lg text-sm ${
-                          viewMode === 'grid' ? 'bg-orange-500 text-white' : isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
+                          viewMode === 'grid' 
+                            ? 'bg-orange-500 text-white' 
+                            : isDarkMode 
+                            ? 'bg-gray-700 text-gray-300' 
+                            : 'bg-gray-200 text-gray-700'
                         }`}
                       >
                         Grid
@@ -1462,7 +1898,11 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                       <button
                         onClick={() => setViewMode('list')}
                         className={`px-3 py-2 rounded-lg text-sm ${
-                          viewMode === 'list' ? 'bg-orange-500 text-white' : isDarkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-200 text-gray-700'
+                          viewMode === 'list' 
+                            ? 'bg-orange-500 text-white' 
+                            : isDarkMode 
+                            ? 'bg-gray-700 text-gray-300' 
+                            : 'bg-gray-200 text-gray-700'
                         }`}
                       >
                         List
@@ -1471,12 +1911,16 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                   </div>
 
                   <div>
-                    <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                    <label className={`block text-sm font-medium mb-2 ${
+                      isDarkMode ? 'text-white' : 'text-gray-900'
+                    }`}>
                       Partner Filter
                     </label>
                     <select 
                       className={`w-full p-2 rounded-lg border ${
-                        isDarkMode ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-gray-300 text-gray-900'
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white' 
+                          : 'bg-white border-gray-300 text-gray-900'
                       }`}
                     >
                       <option value="all">All Partners</option>
@@ -1499,7 +1943,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                     {currentData.length} services available
                   </span>
                   <button className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm ${
-                    isDarkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+                    isDarkMode 
+                      ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                      : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
                   }`}>
                     <RefreshCw className="w-4 h-4" />
                     <span>Refresh</span>
@@ -1522,13 +1968,17 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
               </h2>
               <div className="flex space-x-3">
                 <button className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+                  isDarkMode 
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
                 }`}>
                   <Filter className="w-4 h-4 mr-2 inline" />
                   Filter
                 </button>
                 <button className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+                  isDarkMode 
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
                 }`}>
                   <Download className="w-4 h-4 mr-2 inline" />
                   Export
@@ -1537,7 +1987,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
             </div>
 
             {/* Booking Status Tabs */}
-            <div className={`flex space-x-1 p-1 rounded-xl mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
+            <div className={`flex space-x-1 p-1 rounded-xl mb-6 ${
+              isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'
+            }`}>
               {['All', 'Confirmed', 'Pending', 'Completed', 'Cancelled'].map((status) => (
                 <button
                   key={status}
@@ -1570,7 +2022,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
               </h2>
               <div className="flex space-x-3">
                 <button className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                  isDarkMode ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
+                  isDarkMode 
+                    ? 'bg-gray-800 text-gray-300 hover:bg-gray-700' 
+                    : 'bg-white text-gray-600 hover:bg-gray-100 shadow-md'
                 }`}>
                   <Shield className="w-4 h-4 mr-2 inline" />
                   Safety Info
@@ -1580,7 +2034,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
 
             {/* Tourist-focused Partner Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
+              <div className={`p-6 rounded-xl ${
+                isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md border border-gray-200'
+              }`}>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Trusted Partners
@@ -1592,7 +2048,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 </p>
               </div>
 
-              <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
+              <div className={`p-6 rounded-xl ${
+                isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md border border-gray-200'
+              }`}>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Service Categories
@@ -1604,7 +2062,9 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                 </p>
               </div>
 
-              <div className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800' : 'bg-white shadow-md'}`}>
+              <div className={`p-6 rounded-xl ${
+                isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white shadow-md border border-gray-200'
+              }`}>
                 <div className="flex items-center justify-between mb-2">
                   <h3 className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                     Avg Rating
@@ -1628,7 +2088,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
         {selectedBooking && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className={`max-w-2xl w-full rounded-2xl shadow-2xl max-h-[90vh] overflow-y-auto ${
-              isDarkMode ? 'bg-gray-800' : 'bg-white'
+              isDarkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-200'
             }`}>
               <div className="p-6">
                 <div className="flex items-center justify-between mb-6">
@@ -1638,7 +2098,7 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                   <button
                     onClick={() => setSelectedBooking(null)}
                     className={`p-2 rounded-lg transition-colors ${
-                      isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                      isDarkMode ? 'hover:bg-gray-700 text-gray-400' : 'hover:bg-gray-100 text-gray-600'
                     }`}
                   >
                     <X className="w-5 h-5" />
@@ -1651,6 +2111,10 @@ const BookingsDashboard: React.FC<BookingsDashboardProps> = ({ onBack, isDarkMod
                     src={selectedBooking.image}
                     alt={selectedBooking.name}
                     className="w-full h-64 rounded-xl object-cover"
+                    onError={(e) => {
+                      // Fallback image if URL fails
+                      e.currentTarget.src = 'https://images.pexels.com/photos/271624/pexels-photo-271624.jpeg?auto=compress&cs=tinysrgb&w=400';
+                    }}
                   />
 
                   {/* Basic Info */}

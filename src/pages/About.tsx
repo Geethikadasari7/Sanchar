@@ -1,6 +1,9 @@
 import { Shield, Zap, Heart, Users, Award, Globe } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';   // ✅ Import navigation hook
 
 const About = () => {
+  const navigate = useNavigate();   // ✅ Initialize navigation
+
   const values = [
     {
       icon: <Shield className="w-8 h-8" />,
@@ -48,7 +51,11 @@ const About = () => {
                 emergency response systems, and multilingual support to create a secure travel ecosystem for both domestic 
                 and international tourists.
               </p>
-              <button className="bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-orange-700 transition-colors">
+              {/* ✅ Redirect Learn More button to Login/Register */}
+              <button
+                onClick={() => navigate('/login')}  
+                className="bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-orange-700 transition-colors"
+              >
                 Learn More
               </button>
             </div>

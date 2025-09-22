@@ -4,7 +4,7 @@ import {
   Phone, ArrowLeft, Search, 
   Download, AlertTriangle, Shield, 
   Heart, MapPin, Clock, ChevronDown,
-  ExternalLink, Star
+  ExternalLink, Star, Moon, Sun
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -21,6 +21,7 @@ interface Helpline {
 }
 
 const HelplinesDashboard = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
   const [filterRegion, setFilterRegion] = useState('all');
@@ -477,33 +478,46 @@ const HelplinesDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link
               to="/dashboard/tourist"
-              className="p-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                isDarkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-white'
+              }`}
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className={`w-5 h-5 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Emergency & Tourist Safety Helplines</h1>
-              <p className="text-gray-600">Comprehensive directory of emergency and tourist safety numbers</p>
+              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Emergency & Tourist Safety Helplines</h1>
+              <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Comprehensive directory of emergency and tourist safety numbers</p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Phone className="w-8 h-8 text-orange-600" />
-            <div className="text-right">
-              <p className="text-sm text-gray-600">Emergency: <span className="font-bold text-red-600">112</span></p>
-              <p className="text-sm text-gray-600">Tourist: <span className="font-bold text-orange-600">1363</span></p>
+          <div className="flex items-center space-x-4">
+            {/* Night Mode Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-all ${
+                isDarkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+            <div className="flex items-center space-x-2">
+              <Phone className="w-8 h-8 text-orange-600" />
+              <div className="text-right">
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Emergency: <span className="font-bold text-red-600">112</span></p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Tourist: <span className="font-bold text-orange-600">1363</span></p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Controls */}
-        <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
+        <div className={`rounded-xl p-6 shadow-sm mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             {/* Search */}
             <div className="relative flex-1 max-w-md">
@@ -513,7 +527,11 @@ const HelplinesDashboard = () => {
                 placeholder="Search helplines..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                className={`w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'border-gray-300'
+                }`}
               />
             </div>
 
@@ -522,7 +540,11 @@ const HelplinesDashboard = () => {
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'border-gray-300'
+                }`}
               >
                 <option value="all">All Types</option>
                 <option value="Emergency">Emergency</option>
@@ -546,7 +568,11 @@ const HelplinesDashboard = () => {
               <select
                 value={filterRegion}
                 onChange={(e) => setFilterRegion(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'border-gray-300'
+                }`}
               >
                 <option value="all">All Regions</option>
                 <option value="All India">All India</option>
@@ -560,7 +586,11 @@ const HelplinesDashboard = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                className={`px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                  isDarkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white' 
+                    : 'border-gray-300'
+                }`}
               >
                 <option value="service">Sort by Service</option>
                 <option value="type">Sort by Type</option>
@@ -580,52 +610,66 @@ const HelplinesDashboard = () => {
 
         {/* Results Count */}
         <div className="mb-4">
-          <p className="text-gray-600">
+          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
             Showing {filteredHelplines.length} of {helplines.length} helplines
           </p>
         </div>
 
         {/* Helplines Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className={`rounded-xl shadow-sm overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50">
+              <thead className={isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}>
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
                     Service
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
                     Number
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
                     Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
                     Region
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
                     Languages
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
                     Last Verified
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                    isDarkMode ? 'text-gray-300' : 'text-gray-500'
+                  }`}>
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className={`divide-y ${isDarkMode ? 'bg-gray-800 divide-gray-700' : 'bg-white divide-gray-200'}`}>
                 {filteredHelplines.map((helpline) => (
                   <React.Fragment key={helpline.id}>
-                    <tr className="hover:bg-gray-50">
+                    <tr className={isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-50'}>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {getTypeIcon(helpline.type)}
                           <div className="ml-3">
-                            <div className="text-sm font-medium text-gray-900">
+                            <div className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                               {helpline.service}
                             </div>
-                            <div className="text-sm text-gray-500">
+                            <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                               Available: {helpline.availability}
                             </div>
                           </div>
@@ -644,16 +688,16 @@ const HelplinesDashboard = () => {
                           {helpline.type}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                         {helpline.region}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {helpline.languages.slice(0, 2).join(', ')}
                         {helpline.languages.length > 2 && (
                           <span className="text-gray-400"> +{helpline.languages.length - 2} more</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className={`px-6 py-4 whitespace-nowrap text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         <div className="flex items-center">
                           <Clock className="w-3 h-3 mr-1" />
                           {new Date(helpline.lastVerified).toLocaleDateString()}
@@ -685,14 +729,14 @@ const HelplinesDashboard = () => {
                     {/* Expanded Row */}
                     {expandedRows.includes(helpline.id) && (
                       <tr>
-                        <td colSpan={7} className="px-6 py-4 bg-gray-50">
+                        <td colSpan={7} className={`px-6 py-4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                           <div className="space-y-3">
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">Description</h4>
-                              <p className="text-sm text-gray-600">{helpline.description}</p>
+                              <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Description</h4>
+                              <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{helpline.description}</p>
                             </div>
                             <div>
-                              <h4 className="font-medium text-gray-900 mb-2">All Languages Supported</h4>
+                              <h4 className={`font-medium mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>All Languages Supported</h4>
                               <div className="flex flex-wrap gap-2">
                                 {helpline.languages.map((lang) => (
                                   <span 
@@ -730,8 +774,8 @@ const HelplinesDashboard = () => {
           {filteredHelplines.length === 0 && (
             <div className="text-center py-12">
               <Phone className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No helplines found</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <h3 className={`mt-2 text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>No helplines found</h3>
+              <p className={`mt-1 text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                 Try adjusting your search criteria or filters.
               </p>
             </div>
@@ -741,11 +785,11 @@ const HelplinesDashboard = () => {
         {/* Mobile View */}
         <div className="lg:hidden space-y-4 mt-6">
           {filteredHelplines.map((helpline) => (
-            <div key={helpline.id} className="bg-white rounded-xl p-4 shadow-sm">
+            <div key={helpline.id} className={`rounded-xl p-4 shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center space-x-2">
                   {getTypeIcon(helpline.type)}
-                  <h3 className="font-semibold text-gray-900">{helpline.service}</h3>
+                  <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{helpline.service}</h3>
                 </div>
                 <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeColor(helpline.type)}`}>
                   {helpline.type}
@@ -759,9 +803,9 @@ const HelplinesDashboard = () => {
                 >
                   {helpline.number}
                 </button>
-                <p className="text-sm text-gray-600">{helpline.region}</p>
-                <p className="text-xs text-gray-500">{helpline.languages.join(', ')}</p>
-                <p className="text-sm text-gray-600">{helpline.description}</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{helpline.region}</p>
+                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{helpline.languages.join(', ')}</p>
+                <p className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{helpline.description}</p>
               </div>
               
               <button

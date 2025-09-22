@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Languages, Volume2, ArrowLeft, Mic, 
-  Copy, Star, Book, Globe
+  Copy, Star, Book, Globe, Moon, Sun
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-
 const LanguageDashboard: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('hindi');
   const [translateText, setTranslateText] = useState('');
   const [translatedText, setTranslatedText] = useState('');
@@ -95,23 +95,34 @@ const LanguageDashboard: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-300 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div className="flex items-center space-x-4">
             <Link
               to="/dashboard/tourist"
-              className="p-2 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                isDarkMode ? 'bg-gray-800 text-white hover:bg-gray-700' : 'bg-white'
+              }`}
             >
-              <ArrowLeft className="w-5 h-5 text-gray-600" />
+              <ArrowLeft className={`w-5 h-5 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
             </Link>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Language Assistance</h1>
-              <p className="text-gray-600">Multilingual support for your India journey</p>
+              <h1 className={`text-3xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Language Assistance</h1>
+              <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Multilingual support for your India journey</p>
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            {/* Night Mode Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-all ${
+                isDarkMode ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' : 'bg-white text-gray-600 hover:bg-gray-100'
+              }`}
+            >
+              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
             <Languages className="w-8 h-8 text-orange-600" />
           </div>
         </div>
@@ -119,23 +130,25 @@ const LanguageDashboard: React.FC = () => {
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Language Selection */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-xl p-6 shadow-sm mb-6">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Language</h3>
+            <div className={`rounded-xl p-6 shadow-sm mb-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Select Language</h3>
               <div className="space-y-2 max-h-80 overflow-y-auto">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
                     onClick={() => setSelectedLanguage(lang.code)}
-                    className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors ${
+                    className={`w-full flex items-center space-x-3 p-3 rounded-lg transition-colors border-2 ${
                       selectedLanguage === lang.code
-                        ? 'bg-orange-50 border-2 border-orange-200 text-orange-700'
-                        : 'hover:bg-gray-50 border-2 border-transparent'
+                        ? 'bg-orange-50 border-orange-200 text-orange-700'
+                        : isDarkMode 
+                          ? 'hover:bg-gray-700 border-transparent text-gray-300' 
+                          : 'hover:bg-gray-50 border-transparent'
                     }`}
                   >
                     <span className="text-2xl">{lang.flag}</span>
                     <div className="text-left">
                       <p className="font-medium">{lang.name}</p>
-                      <p className="text-sm text-gray-500">{lang.native}</p>
+                      <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{lang.native}</p>
                     </div>
                   </button>
                 ))}
@@ -143,23 +156,23 @@ const LanguageDashboard: React.FC = () => {
             </div>
 
             {/* Stats */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Stats</h3>
+            <div className={`rounded-xl p-6 shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+              <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Quick Stats</h3>
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Regional Languages</span>
+                  <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Regional Languages</span>
                   <span className="font-semibold text-orange-600">22</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Common Phrases</span>
+                  <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Common Phrases</span>
                   <span className="font-semibold text-orange-600">50+</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Voice Support</span>
+                  <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Voice Support</span>
                   <span className="font-semibold text-green-600">Available</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-600">Offline Mode</span>
+                  <span className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Offline Mode</span>
                   <span className="font-semibold text-blue-600">Ready</span>
                 </div>
               </div>
@@ -169,25 +182,29 @@ const LanguageDashboard: React.FC = () => {
           {/* Main Content */}
           <div className="lg:col-span-3 space-y-6">
             {/* Translator */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className={`rounded-xl p-6 shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">Text & Voice Translator</h3>
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Text & Voice Translator</h3>
                 <div className="flex items-center space-x-2">
                   <Globe className="w-5 h-5 text-orange-600" />
-                  <span className="text-sm text-gray-600">English → {selectedLanguage}</span>
+                  <span className={`text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>English → {selectedLanguage}</span>
                 </div>
               </div>
 
               <div className="grid md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     English Text
                   </label>
                   <div className="relative">
                     <textarea
                       value={translateText}
                       onChange={(e) => setTranslateText(e.target.value)}
-                      className="w-full h-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-orange-500 focus:border-orange-500"
+                      className={`w-full h-32 px-3 py-2 border rounded-lg focus:ring-orange-500 focus:border-orange-500 ${
+                        isDarkMode 
+                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                          : 'border-gray-300'
+                      }`}
                       placeholder="Type your message here..."
                     />
                     <button
@@ -195,7 +212,9 @@ const LanguageDashboard: React.FC = () => {
                       className={`absolute bottom-3 right-3 p-2 rounded-lg transition-colors ${
                         isListening 
                           ? 'bg-red-100 text-red-600 animate-pulse' 
-                          : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                          : isDarkMode 
+                            ? 'bg-gray-600 text-gray-300 hover:bg-gray-500' 
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                       }`}
                     >
                       <Mic className="w-4 h-4" />
@@ -210,26 +229,34 @@ const LanguageDashboard: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className={`block text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     Translation
                   </label>
                   <div className="relative">
-                    <div className="w-full h-32 px-3 py-2 bg-gray-50 border border-gray-300 rounded-lg">
-                      <p className="text-gray-900">{translatedText || 'Translation will appear here...'}</p>
+                    <div className={`w-full h-32 px-3 py-2 border rounded-lg ${
+                      isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-gray-50 border-gray-300'
+                    }`}>
+                      <p className={`${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                        {translatedText || 'Translation will appear here...'}
+                      </p>
                     </div>
                     {translatedText && (
                       <div className="absolute bottom-3 right-3 flex space-x-2">
                         <button
                           onClick={() => copyToClipboard(translatedText)}
-                          className="p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                          className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                            isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-white hover:bg-gray-50'
+                          }`}
                         >
-                          <Copy className="w-4 h-4 text-gray-600" />
+                          <Copy className={`w-4 h-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                         </button>
                         <button
                           onClick={() => playAudio(translatedText)}
-                          className="p-2 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+                          className={`p-2 rounded-lg shadow-sm hover:shadow-md transition-shadow ${
+                            isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-white hover:bg-gray-50'
+                          }`}
                         >
-                          <Volume2 className="w-4 h-4 text-gray-600" />
+                          <Volume2 className={`w-4 h-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                         </button>
                       </div>
                     )}
@@ -239,31 +266,31 @@ const LanguageDashboard: React.FC = () => {
             </div>
 
             {/* Emergency Phrases */}
-            <div className="bg-red-50 border border-red-200 rounded-xl p-6">
+            <div className={`border rounded-xl p-6 ${isDarkMode ? 'bg-red-900/20 border-red-800' : 'bg-red-50 border-red-200'}`}>
               <div className="flex items-center space-x-2 mb-4">
                 <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
                   <Star className="w-4 h-4 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold text-red-800">Emergency Phrases</h3>
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-red-200' : 'text-red-800'}`}>Emergency Phrases</h3>
               </div>
               
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {emergencyPhrases.map((phrase, index) => (
-                  <div key={index} className="bg-white rounded-lg p-4 border border-red-200">
-                    <div className="text-sm text-gray-600 mb-1">{phrase.english}</div>
-                    <div className="text-lg font-semibold text-red-700 mb-2">{phrase.translation}</div>
+                  <div key={index} className={`rounded-lg p-4 border ${isDarkMode ? 'bg-gray-800 border-red-700' : 'bg-white border-red-200'}`}>
+                    <div className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{phrase.english}</div>
+                    <div className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-red-300' : 'text-red-700'}`}>{phrase.translation}</div>
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => playAudio(phrase.translation)}
-                        className="p-1 bg-red-100 rounded hover:bg-red-200 transition-colors"
+                        className={`p-1 rounded transition-colors ${isDarkMode ? 'bg-red-800 hover:bg-red-700' : 'bg-red-100 hover:bg-red-200'}`}
                       >
-                        <Volume2 className="w-3 h-3 text-red-600" />
+                        <Volume2 className={`w-3 h-3 ${isDarkMode ? 'text-red-300' : 'text-red-600'}`} />
                       </button>
                       <button
                         onClick={() => copyToClipboard(phrase.translation)}
-                        className="p-1 bg-red-100 rounded hover:bg-red-200 transition-colors"
+                        className={`p-1 rounded transition-colors ${isDarkMode ? 'bg-red-800 hover:bg-red-700' : 'bg-red-100 hover:bg-red-200'}`}
                       >
-                        <Copy className="w-3 h-3 text-red-600" />
+                        <Copy className={`w-3 h-3 ${isDarkMode ? 'text-red-300' : 'text-red-600'}`} />
                       </button>
                     </div>
                   </div>
@@ -272,20 +299,20 @@ const LanguageDashboard: React.FC = () => {
             </div>
 
             {/* Common Phrases */}
-            <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className={`rounded-xl p-6 shadow-sm ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-gray-900">Common Phrases</h3>
+                <h3 className={`text-xl font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>Common Phrases</h3>
                 <Book className="w-6 h-6 text-orange-600" />
               </div>
 
               {/* Tabs */}
-              <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg mb-6">
+              <div className={`flex space-x-1 p-1 rounded-lg mb-6 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
                 <button
                   onClick={() => setActiveTab('greetings')}
                   className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                     activeTab === 'greetings'
-                      ? 'bg-white text-orange-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? isDarkMode ? 'bg-gray-600 text-orange-400 shadow-sm' : 'bg-white text-orange-600 shadow-sm'
+                      : isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   Greetings
@@ -294,8 +321,8 @@ const LanguageDashboard: React.FC = () => {
                   onClick={() => setActiveTab('directions')}
                   className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                     activeTab === 'directions'
-                      ? 'bg-white text-orange-600 shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? isDarkMode ? 'bg-gray-600 text-orange-400 shadow-sm' : 'bg-white text-orange-600 shadow-sm'
+                      : isDarkMode ? 'text-gray-300 hover:text-white' : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
                   Directions
@@ -305,21 +332,21 @@ const LanguageDashboard: React.FC = () => {
               {/* Phrase Lists */}
               <div className="grid md:grid-cols-2 gap-4">
                 {commonPhrases[activeTab as keyof typeof commonPhrases].map((phrase, index) => (
-                  <div key={index} className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-600 mb-1">{phrase.english}</div>
-                    <div className="text-lg font-semibold text-gray-900 mb-2">{phrase.translation}</div>
+                  <div key={index} className={`rounded-lg p-4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                    <div className={`text-sm mb-1 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{phrase.english}</div>
+                    <div className={`text-lg font-semibold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>{phrase.translation}</div>
                     <div className="flex items-center space-x-2">
                       <button
                         onClick={() => playAudio(phrase.translation)}
-                        className="p-1 bg-white rounded hover:bg-gray-100 transition-colors"
+                        className={`p-1 rounded transition-colors ${isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-white hover:bg-gray-100'}`}
                       >
-                        <Volume2 className="w-3 h-3 text-gray-600" />
+                        <Volume2 className={`w-3 h-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                       </button>
                       <button
                         onClick={() => copyToClipboard(phrase.translation)}
-                        className="p-1 bg-white rounded hover:bg-gray-100 transition-colors"
+                        className={`p-1 rounded transition-colors ${isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-white hover:bg-gray-100'}`}
                       >
-                        <Copy className="w-3 h-3 text-gray-600" />
+                        <Copy className={`w-3 h-3 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} />
                       </button>
                     </div>
                   </div>
