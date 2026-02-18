@@ -1185,7 +1185,7 @@ const TouristRegistration = () => {
         <div className="flex items-start justify-between mb-4">
           <div>
             <h3 className="text-lg font-bold">Sanchar Digital ID</h3>
-            <p className="text-orange-100 text-sm">Smart Tourist Safety System</p>
+            <p className="text-orange-100 text-sm">Smart Tourist Safety & Incident Response System</p>
           </div>
           <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
             <Shield className="w-5 h-5" />
